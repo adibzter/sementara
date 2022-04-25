@@ -16,7 +16,7 @@ RUN npm ci --only=production
 # RUN npm install --only=production
 
 # Copy local code to the container image.
-COPY . .
+COPY . ./
 
 # Setup client side
 WORKDIR ./client
