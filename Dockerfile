@@ -12,16 +12,16 @@ COPY package*.json ./
 
 # Install production dependencies.
 # If you add a package-lock.json, speed your build by switching to 'npm ci'.
-RUN npm ci --only=production
-# RUN npm install --only=production
+# RUN npm ci --only=production
+RUN npm install --only=production
 
 # Copy local code to the container image.
 COPY . ./
 
 # Setup client side
 WORKDIR ./client
-RUN npm ci --only=production --silent && npm run build
-# RUN npm install --only=production --silent && npm run build
+# RUN npm ci --only=production --silent && npm run build
+RUN npm install --only=production --silent && npm run build
 
 WORKDIR ..
 
