@@ -1,0 +1,26 @@
+{
+  "name": "sementara",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server",
+    "server": "nodemon server",
+    "client": "npm start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "install-client": "npm install --prefix client",
+    "build-client": "npm run build --prefix client"
+  },
+  "keywords": [],
+  "author": "Adib Zaini",
+  "license": "",
+  "dependencies": {
+    "express": "^4.17.1",
+    "multer": "^1.4.4",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "concurrently": "^6.2.0",
+    "nodemon": "^2.0.12"
+  }
+}
