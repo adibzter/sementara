@@ -35,12 +35,12 @@ const Camera = () => {
   function redirectToFile(data) {
     const searchParams = new URLSearchParams(data);
     const action = searchParams.get('action');
-    const url = searchParams.get('url');
+    const id = searchParams.get('id');
 
     if (action === 'send') {
-      console.log('Send: ' + url);
+      console.log('Send: ' + id);
     } else if (action === 'receive') {
-      console.log('Receive: ' + url);
+      console.log('Receive: ' + id);
     }
   }
 

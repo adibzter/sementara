@@ -1,17 +1,16 @@
 const router = require('express').Router();
 const { v4: uuid } = require('uuid');
 
+// GET /api/receive/
 router.get('/', (req, res) => {
   const id = uuid();
 
   const params = {
     action: 'receive',
-    url: `http://localhost:5000/receive/${id}`,
+    id,
   };
 
-  const searchParams = new URLSearchParams(params);
-
-  res.send(searchParams.toString());
+  res.json(params);
 });
 
 module.exports = router;

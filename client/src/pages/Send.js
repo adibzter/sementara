@@ -1,27 +1,28 @@
 import { useState, useEffect, useRef } from 'react';
 
 import QRCode from 'qrcode';
-import { v4 as uuid } from 'uuid';
 
 const Send = () => {
-  const [data, setData] = useState('');
+  // const [data, setData] = useState('');
   const [src, setSrc] = useState('');
   const [message, setMessage] = useState('');
 
   const dialogRef = useRef(null);
   const formRef = useRef(null);
   const fileRef = useRef(null);
+  const qrRef = useRef(null);
 
   useEffect(() => {
     formRef.current.onsubmit = async (e) => {
       e.preventDefault();
 
-      showDialog('Uploading File...');
+      showDialog('Uploading Files...');
       const data = await postForm();
       const qrUrl = await QRCode.toDataURL(data, {
         errorCorrectionLevel: 'high',
       });
       setSrc(qrUrl);
+      qrRef.current.hidden = false;
 
       showDialog('File Uploaded');
       setTimeout(() => {
@@ -40,8 +41,8 @@ const Send = () => {
     let totalSize = 0;
     for (let file of files) {
       totalSize += file.size;
-      console.log(totalSize);
     }
+
     if (totalSize > limit * 1024 * 1024) {
       showDialog(`Total size of files must not exceed ${limit} MB`);
       setTimeout(() => {
@@ -67,12 +68,15 @@ const Send = () => {
       data.append('files', file);
     }
 
-    const res = await fetch('http://localhost:5000/api/send', {
+    let res = await fetch('http://localhost:5000/api/send', {
       method: 'POST',
       body: data,
     });
+    res = await res.json();
 
-    return res.text();
+    const params = new URLSearchParams(res);
+
+    return params.toString();
   }
 
   return (
@@ -80,17 +84,29 @@ const Send = () => {
       <dialog ref={dialogRef}>{message}</dialog>
 
       <form ref={formRef}>
+        <h6>Select files</h6>
         <input
           type='file'
           name='files'
-          multiple
           onChange={handleFileChange}
           ref={fileRef}
-          required
+          multiple
         />
+        {/* <h6>Select Folder</h6>
+        <input
+          type='file'
+          name='folder'
+          onChange={handleFileChange}
+          ref={fileRef}
+          webkitdirectory='true'
+          multiple
+        /> */}
+        <br />
+        <br />
+        <br />
         <input type='submit' value='Upload' />
       </form>
-      <img src={src} />
+      <img src={src} alt='qr-code' ref={qrRef} hidden />
     </>
   );
 };

@@ -15,6 +15,7 @@
   "author": "Adib Zaini",
   "license": "",
   "dependencies": {
+    "@google-cloud/storage": "^5.19.3",
     "express": "^4.17.1",
     "multer": "^1.4.4",
     "uuid": "^8.3.2"
