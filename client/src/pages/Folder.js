@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 
+import { API_SERVER } from '../utils/config';
+
 const Folder = () => {
   const [filenames, setFilenames] = useState([]);
   const [id, setId] = useState('');
@@ -13,7 +15,7 @@ const Folder = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/folder/${id}/info`);
+        const res = await fetch(`${API_SERVER}/api/folder/${id}/info`);
         const filenames = await res.json();
 
         for (let i in filenames) {
@@ -22,7 +24,7 @@ const Folder = () => {
           filenames[i] = temp.join('/');
         }
 
-        setFilenames(filenames);
+        setFilenames(() => filenames);
       } catch (err) {
         console.error(err.message);
       }
@@ -37,7 +39,7 @@ const Folder = () => {
 
   async function downloadOne(filename) {
     const res = await fetch(
-      `http://localhost:5000/api/folder/${id}/download/one/${filename}`
+      `${API_SERVER}/api/folder/${id}/download/one/${filename}`
     );
     downloadToDisk(await res.blob(), filename);
   }
@@ -58,20 +60,24 @@ const Folder = () => {
       <h3>File</h3>
       <button onClick={downloadAll}>Download All</button>
       <table>
-        <tr>
-          <th>File Name</th>
-          <th>Download</th>
-        </tr>
-        {filenames.map((filename, i) => {
-          return (
-            <tr key={i}>
-              <td>{filename}</td>
-              <td>
-                <button onClick={() => downloadOne(filename)}>Download</button>
-              </td>
-            </tr>
-          );
-        })}
+        <tbody>
+          <tr>
+            <th>File Name</th>
+            <th>Download</th>
+          </tr>
+          {filenames.map((filename, i) => {
+            return (
+              <tr key={i}>
+                <td>{filename}</td>
+                <td>
+                  <button onClick={() => downloadOne(filename)}>
+                    Download
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
       </table>
     </>
   );

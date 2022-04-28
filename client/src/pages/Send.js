@@ -2,10 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 
 import QRCode from 'qrcode';
 
+import Camera from '../components/Camera';
+
+import { API_SERVER } from '../utils/config';
+
 const Send = () => {
-  // const [data, setData] = useState('');
   const [src, setSrc] = useState('');
   const [message, setMessage] = useState('');
+  const [camera, setCamera] = useState(null);
 
   const dialogRef = useRef(null);
   const formRef = useRef(null);
@@ -23,6 +27,7 @@ const Send = () => {
       });
       setSrc(qrUrl);
       qrRef.current.hidden = false;
+      setupCamera(data);
 
       showDialog('File Uploaded');
       setTimeout(() => {
@@ -68,7 +73,7 @@ const Send = () => {
       data.append('files', file);
     }
 
-    let res = await fetch('http://localhost:5000/api/send', {
+    let res = await fetch(`${API_SERVER}/api/send`, {
       method: 'POST',
       body: data,
     });
@@ -77,6 +82,13 @@ const Send = () => {
     const params = new URLSearchParams(res);
 
     return params.toString();
+  }
+
+  function setupCamera(data) {
+    const params = new URLSearchParams(data);
+    const folderId = params.get('id');
+
+    setCamera(<Camera folderId={folderId} />);
   }
 
   return (
@@ -106,7 +118,9 @@ const Send = () => {
         <br />
         <input type='submit' value='Upload' />
       </form>
+
       <img src={src} alt='qr-code' ref={qrRef} hidden />
+      {camera}
     </>
   );
 };

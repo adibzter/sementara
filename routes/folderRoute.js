@@ -4,7 +4,7 @@ const {
   getFile,
   downloadBuffer,
   getFileNames,
-} = require('../util/googleStorage');
+} = require('../utils/googleStorage');
 
 // GET /api/folder/:id/info
 router.get('/:id/info', async (req, res) => {

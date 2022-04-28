@@ -3,7 +3,7 @@ const router = require('express').Router();
 const multer = require('multer');
 const { v4: uuid } = require('uuid');
 
-const { uploadBuffer } = require('../util/googleStorage');
+const { uploadBuffer } = require('../utils/googleStorage');
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });

@@ -1,20 +1,28 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import QRCode from 'qrcode';
 
 import Camera from '../components/Camera';
 
+import { API_SERVER, WEB_SOCKET_SERVER } from '../utils/config';
+
 const Receive = () => {
   const [qrSrc, setQrSrc] = useState('');
+  const navigate = useNavigate();
+
   window.cameraStream = new MediaStream();
+  window.userId = null;
 
   useEffect(() => {
     (async () => {
-      getQr();
+      await getQr();
+      connectWebSocket();
     })();
   }, []);
 
   async function getQr() {
-    let res = await fetch('http://localhost:5000/api/receive');
+    let res = await fetch(`${API_SERVER}/api/receive`);
     res = await res.json();
 
     const params = new URLSearchParams(res);
@@ -23,6 +31,21 @@ const Receive = () => {
       errorCorrectionLevel: 'high',
     });
     setQrSrc(qrUrl);
+
+    window.userId = res.id;
+  }
+
+  function connectWebSocket() {
+    const ws = new WebSocket(WEB_SOCKET_SERVER);
+    ws.onopen = (e) => {
+      ws.send(JSON.stringify({ type: 'registration', userId: window.userId }));
+
+      ws.onmessage = (e) => {
+        let data = JSON.parse(e.data);
+
+        navigate(`/folder/${data.id}`);
+      };
+    };
   }
 
   return (
