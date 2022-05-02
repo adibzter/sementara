@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
+import Home from './pages/Home';
+import Room from './pages/Room';
 import Send from './pages/Send';
 import Receive from './pages/Receive';
 import Folder from './pages/Folder';
@@ -19,11 +21,12 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route exact path='/' element={<h3>home</h3>} />
+        <Route exact path='/' element={<Home />} />
+        <Route path='/room/*' element={<Room />} />
         <Route exact path='/send' element={<Send />} />
         <Route exact path='/receive' element={<Receive />} />
         <Route path='/folder/*' element={<Folder />} />
-        <Route path='*' component={<h3>home</h3>} />
+        <Route path='*' component={<Home />} />
       </Routes>
     </Router>
   );

@@ -1,43 +1,31 @@
 import { useState, useEffect, useRef } from 'react';
-
-import QRCode from 'qrcode';
-
-import Camera from '../components/Camera';
+import { useNavigate } from 'react-router-dom';
+import { zip } from 'fflate';
 
 import { API_SERVER } from '../utils/config';
 
 const Send = () => {
-  const [src, setSrc] = useState('');
   const [message, setMessage] = useState('');
-  const [camera, setCamera] = useState(null);
+  const [uploadType, setUploadType] = useState('file');
 
   const dialogRef = useRef(null);
   const formRef = useRef(null);
   const fileRef = useRef(null);
-  const qrRef = useRef(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     formRef.current.onsubmit = async (e) => {
       e.preventDefault();
 
-      showDialog('Uploading Files...');
       const data = await postForm();
-      const qrUrl = await QRCode.toDataURL(data, {
-        errorCorrectionLevel: 'high',
-      });
-      setSrc(qrUrl);
-      qrRef.current.hidden = false;
-      setupCamera(data);
-
-      showDialog('File Uploaded');
-      setTimeout(() => {
-        closeDialog();
-      }, 3000);
+      navigate(`/folder/${data.id}`);
     };
   }, []);
 
   function handleFileChange(e) {
     const files = e.target.files;
+    console.log(files);
     checkFilesSizes(files);
   }
 
@@ -66,29 +54,47 @@ const Send = () => {
   }
 
   async function postForm() {
+    showDialog('Zipping files...');
+
     let files = fileRef.current.files;
+    const file = await createZipFile(files);
 
     const data = new FormData();
-    for (let file of files) {
-      data.append('files', file);
-    }
+    data.append('files', file);
 
+    showDialog('Uploading files...');
     let res = await fetch(`${API_SERVER}/api/send`, {
       method: 'POST',
       body: data,
     });
-    res = await res.json();
+    res = await res.text();
+    res = JSON.parse(res);
 
-    const params = new URLSearchParams(res);
-
-    return params.toString();
+    return res;
   }
 
-  function setupCamera(data) {
-    const params = new URLSearchParams(data);
-    const folderId = params.get('id');
+  async function createZipFile(files) {
+    const data = {};
+    let archiveName = '';
+    for (let file of files) {
+      const webkitPath = file.webkitRelativePath.split('/');
+      const filePath = webkitPath.slice(1).join('/') || file.name;
+      archiveName = webkitPath[0] ? `${webkitPath[0]}.zip` : 'sementara.zip';
 
-    setCamera(<Camera folderId={folderId} />);
+      data[filePath] = new Uint8Array(await file.arrayBuffer());
+    }
+
+    return new Promise((resolve, reject) => {
+      zip(data, { level: 9, mem: 1 }, (err, data) => {
+        if (err) {
+          console.error(err);
+        }
+        const file = new File([data], archiveName, {
+          type: 'application/zip',
+        });
+        resolve(file);
+      });
+    });
   }
 
   return (
@@ -96,31 +102,28 @@ const Send = () => {
       <dialog ref={dialogRef}>{message}</dialog>
 
       <form ref={formRef}>
-        <h6>Select files</h6>
+        {/* <h6>Select files</h6>
         <input
           type='file'
           name='files'
           onChange={handleFileChange}
           ref={fileRef}
           multiple
-        />
-        {/* <h6>Select Folder</h6>
+        /> */}
+        <h6>Select Folder</h6>
         <input
           type='file'
-          name='folder'
+          name='files'
           onChange={handleFileChange}
           ref={fileRef}
           webkitdirectory='true'
           multiple
-        /> */}
+        />
         <br />
         <br />
         <br />
         <input type='submit' value='Upload' />
       </form>
-
-      <img src={src} alt='qr-code' ref={qrRef} hidden />
-      {camera}
     </>
   );
 };

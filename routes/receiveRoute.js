@@ -3,11 +3,11 @@ const { v4: uuid } = require('uuid');
 
 // GET /api/receive/
 router.get('/', (req, res) => {
-  const id = uuid();
+  const userId = uuid();
 
   const params = {
     action: 'receive',
-    id,
+    userId,
   };
 
   res.json(params);

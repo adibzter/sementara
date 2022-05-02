@@ -5,7 +5,7 @@ import QrScanner from 'qr-scanner';
 
 import { WEB_SOCKET_SERVER } from '../utils/config';
 
-const Camera = ({ folderId }) => {
+const Camera = ({ folderId, sdp, peer, setCallerConnection }) => {
   const navigate = useNavigate();
   window.cameraStream = new MediaStream();
 
@@ -23,10 +23,11 @@ const Camera = ({ folderId }) => {
         showCameraVideo();
 
         const qrScanner = new QrScanner(videoRef.current, (data) => {
-          const isValid = redirectToFolder(data);
+          const isValid = handleData(data);
 
           if (isValid) {
             qrScanner.destroy();
+            // alert('Done scanning');
           } else {
             alert('QR not valid');
           }
@@ -48,19 +49,23 @@ const Camera = ({ folderId }) => {
     video.play();
   }
 
-  function redirectToFolder(data) {
-    const searchParams = new URLSearchParams(data);
-    const action = searchParams.get('action');
-    const id = searchParams.get('id');
+  function handleData(data) {
+    data = JSON.parse(data);
+    const action = data.action;
+    const userId = data.userId;
+    folderId = folderId || data.folderId;
 
-    // Check QR validity
-    if (!action || !id) {
-      return false;
-    }
+    // // Check QR validity
+    // if (!action || !userId || !folderId) {
+    //   return false;
+    // }
 
     // QR created by sender
     if (action === 'send') {
-      navigate(`/folder/${id}`, { replace: true });
+      navigate(`/folder/${folderId}`, { replace: true });
+      window.cameraStream.getTracks().forEach((track) => {
+        track.stop();
+      });
     }
 
     // QR created by receiver
@@ -71,12 +76,44 @@ const Camera = ({ folderId }) => {
           JSON.stringify({
             type: 'message',
             action,
-            id,
+            userId,
             folderId,
           })
         );
         ws.close();
       };
+    }
+
+    // QR created for webRTC connection
+    else if (action === 'connect') {
+      const conn = peer.connect(data.peerId);
+      window.conn = conn;
+      setCallerConnection(conn);
+      // const ws = new WebSocket(WEB_SOCKET_SERVER);
+      // ws.onopen = (e) => {
+      //   ws.send(
+      //     JSON.stringify({
+      //       type: 'message',
+      //       action,
+      //       id,
+      //       sdp,
+      //     })
+      //   );
+      //   ws.close();
+      // };
+    }
+
+    // QR for joining room
+    else if (action === 'join') {
+      const ws = window.ws;
+      ws.send(
+        JSON.stringify({
+          type: 'join',
+          action,
+          roomId: data.roomId,
+        })
+      );
+      navigate(`/room/${data.roomId}`, { state: { caller: true } });
     }
 
     return true;
