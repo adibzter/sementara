@@ -57,10 +57,13 @@ const Send = () => {
     showDialog('Zipping files...');
 
     let files = fileRef.current.files;
-    const file = await createZipFile(files);
+
+    const infoFile = createInfoFile(files);
+    const zipFile = await createZipFile(files);
 
     const data = new FormData();
-    data.append('files', file);
+    data.append('files', infoFile);
+    data.append('files', zipFile);
 
     showDialog('Uploading files...');
     let res = await fetch(`${API_SERVER}/api/send`, {
@@ -71,6 +74,23 @@ const Send = () => {
     res = JSON.parse(res);
 
     return res;
+  }
+
+  function createInfoFile(files) {
+    const data = { filenames: [] };
+    const isFolder = files[0].webkitRelativePath ? true : false;
+    if (isFolder) {
+      const filename = files[0].webkitRelativePath.split('/')[0] + '.zip';
+      data.filenames.push(filename);
+    } else {
+      for (let file of files) {
+        data.filenames.push(file.name);
+      }
+    }
+
+    const file = new File([JSON.stringify(data)], '.info');
+
+    return file;
   }
 
   async function createZipFile(files) {

@@ -52,12 +52,9 @@ router.post('/', upload.array('files'), async (req, res, next) => {
 
 async function uploadToBucket(id, files) {
   const promises = [];
-  const data = { filenames: [] };
   for (let file of files) {
-    data.filenames.push(file.originalname);
     promises.push(uploadBuffer(id, file.originalname, file.buffer));
   }
-  promises.push(uploadBuffer(id, '.info', JSON.stringify(data)));
 
   await Promise.all(promises);
 }

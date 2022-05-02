@@ -11,8 +11,8 @@ const storage = new Storage({
 const bucketName = 'sementara';
 const bucket = storage.bucket(bucketName);
 
-const getFile = async (id, fileName) => {
-  const destination = `temp/${id}/${fileName}`;
+const getFile = async (id, filename) => {
+  const destination = `temp/${id}/${filename}`;
   const [files] = await bucket.getFiles({
     prefix: destination,
   });
@@ -20,32 +20,29 @@ const getFile = async (id, fileName) => {
   return files[0];
 };
 
-const uploadBuffer = async (id, fileName, buffer) => {
-  const destination = `temp/${id}/${fileName}`;
+const uploadBuffer = async (id, filename, buffer) => {
+  const destination = `temp/${id}/${filename}`;
   await bucket.file(destination).save(buffer);
 
-  console.log(`${fileName} uploaded to ${bucketName} bucket`);
+  console.log(`${filename} uploaded to ${bucketName} bucket`);
 };
 
-const downloadBuffer = async (id, fileName) => {
-  const destination = `temp/${id}/${fileName}`;
+const downloadBuffer = async (id, filename) => {
+  const destination = `temp/${id}/${filename}`;
   const buffer = await bucket.file(destination).download();
 
   return buffer[0];
 };
 
-const getFileNames = async (id) => {
-  const folder = `temp/${id}/`;
-  const [files] = await bucket.getFiles({
-    prefix: folder,
-  });
+const getFilenames = async (id) => {
+  const buffer = await downloadBuffer(id, '.info');
+  const { filenames } = JSON.parse(buffer.toString());
 
-  const filenames = [];
-  for (let file of files) {
-    filenames.push(file.name);
+  for (let i in filenames) {
+    filenames[i] = `temp/${id}/${filenames[i]}`;
   }
 
   return filenames;
 };
 
-module.exports = { getFile, uploadBuffer, downloadBuffer, getFileNames };
+module.exports = { getFile, uploadBuffer, downloadBuffer, getFilenames };

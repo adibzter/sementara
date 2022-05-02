@@ -3,7 +3,7 @@ const router = require('express').Router();
 const {
   getFile,
   downloadBuffer,
-  getFileNames,
+  getFilenames,
 } = require('../utils/googleStorage');
 
 // GET /api/folder/:id/info
@@ -11,7 +11,7 @@ router.get('/:id/info', async (req, res) => {
   const id = req.params.id;
 
   try {
-    const filenames = await getFileNames(id);
+    const filenames = await getFilenames(id);
     res.json(filenames);
   } catch (err) {
     console.error(err.message);
