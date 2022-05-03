@@ -77,12 +77,14 @@ const Send = () => {
   }
 
   function createInfoFile(files) {
-    const data = { filenames: [] };
+    const data = { type: '', filenames: [] };
     const isFolder = files[0].webkitRelativePath ? true : false;
     if (isFolder) {
+      data.type = 'folder';
       const filename = files[0].webkitRelativePath.split('/')[0] + '.zip';
       data.filenames.push(filename);
     } else {
+      data.type = 'file';
       for (let file of files) {
         data.filenames.push(file.name);
       }

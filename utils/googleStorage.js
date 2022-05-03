@@ -34,15 +34,15 @@ const downloadBuffer = async (id, filename) => {
   return buffer[0];
 };
 
-const getFilenames = async (id) => {
+const getFolderInfo = async (id) => {
   const buffer = await downloadBuffer(id, '.info');
-  const { filenames } = JSON.parse(buffer.toString());
+  const data = JSON.parse(buffer.toString());
 
-  for (let i in filenames) {
-    filenames[i] = `temp/${id}/${filenames[i]}`;
+  for (let i in data.filenames) {
+    data.filenames[i] = `temp/${id}/${data.filenames[i]}`;
   }
 
-  return filenames;
+  return data;
 };
 
-module.exports = { getFile, uploadBuffer, downloadBuffer, getFilenames };
+module.exports = { getFile, uploadBuffer, downloadBuffer, getFolderInfo };

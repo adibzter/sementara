@@ -6,6 +6,7 @@ import Camera from '../components/Camera';
 import { API_SERVER } from '../utils/config';
 
 const Folder = () => {
+  const [type, setType] = useState('');
   const [filenames, setFilenames] = useState([]);
   const [folderId, setFolderId] = useState('');
   const [method, setMethod] = useState('qr');
@@ -28,7 +29,7 @@ const Folder = () => {
     (async () => {
       try {
         const res = await fetch(`${API_SERVER}/api/folder/${folderId}/info`);
-        const filenames = await res.json();
+        const { type, filenames } = await res.json();
 
         for (let i in filenames) {
           let temp = filenames[i].split('/');
@@ -36,20 +37,23 @@ const Folder = () => {
           filenames[i] = temp.join('/');
         }
 
-        setFilenames(() => filenames);
+        setType(type);
+        setFilenames(filenames);
       } catch (err) {
         console.error(err.message);
       }
     })();
   }, [folderId]);
 
-  async function downloadAll() {
-    for (let filename of filenames) {
-      downloadOne(filename);
+  function handleDownload() {
+    if (type === 'folder') {
+      downloadZipFile(filenames[0]);
+    } else if (type === 'file') {
+      downloadZipFile('sementara.zip');
     }
   }
 
-  async function downloadOne(filename) {
+  async function downloadZipFile(filename) {
     const res = await fetch(
       `${API_SERVER}/api/folder/${folderId}/download/one/${filename}`
     );
@@ -70,22 +74,16 @@ const Folder = () => {
   return (
     <>
       <h3>File</h3>
-      <button onClick={downloadAll}>Download All</button>
+      <button onClick={handleDownload}>Download</button>
       <table>
         <tbody>
           <tr>
             <th>File Name</th>
-            <th>Download</th>
           </tr>
           {filenames.map((filename, i) => {
             return (
               <tr key={i}>
                 <td>{filename}</td>
-                <td>
-                  <button onClick={() => downloadOne(filename)}>
-                    Download
-                  </button>
-                </td>
               </tr>
             );
           })}

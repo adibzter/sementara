@@ -1,18 +1,14 @@
 const router = require('express').Router();
 
-const {
-  getFile,
-  downloadBuffer,
-  getFilenames,
-} = require('../utils/googleStorage');
+const { getFile, getFolderInfo } = require('../utils/googleStorage');
 
 // GET /api/folder/:id/info
 router.get('/:id/info', async (req, res) => {
   const id = req.params.id;
 
   try {
-    const filenames = await getFilenames(id);
-    res.json(filenames);
+    const folderInfo = await getFolderInfo(id);
+    res.json(folderInfo);
   } catch (err) {
     console.error(err.message);
     res.status(404).json({});
@@ -35,27 +31,6 @@ router.get('/:id/download/one/:filename', async (req, res) => {
     console.error(err.message);
     res.status(404).json({});
   }
-});
-
-// GET /api/folder/:id/download/all
-router.get('/:id/download/all', async (req, res) => {
-  res.zip([
-    { path: 'receiveRoute.js', name: 'receiveRoute.js' },
-    { path: 'sendRoute.js', name: 'sendRoute.js' },
-  ]);
-  // const id = req.params.id;
-
-  // try {
-  //   const filenames = await getFileNames(id);
-
-  //   for (let filename of filenames) {
-  //     await downloadBuffer(id, filename);
-  //   }
-  //   res.json(filenames);
-  // } catch (err) {
-  //   console.error(err.message);
-  //   res.status(404).json({});
-  // }
 });
 
 module.exports = router;
