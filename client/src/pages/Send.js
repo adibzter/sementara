@@ -25,9 +25,20 @@ const Send = () => {
     };
   }, []);
 
+  function handleUpload(type) {
+    const input = fileRef.current;
+
+    if (type === 'file') {
+      input.removeAttribute('webkitdirectory');
+    } else if (type === 'folder') {
+      input.setAttribute('webkitdirectory', '');
+    }
+
+    input.click();
+  }
+
   function handleFileChange(e) {
     const files = e.target.files;
-    console.log(files);
     checkFilesSizes(files);
   }
 
@@ -39,10 +50,13 @@ const Send = () => {
     }
 
     if (totalSize > limit * 1024 * 1024) {
+      fileRef.current.value = '';
       showDialog(`Total size of files must not exceed ${limit} MB`);
       setTimeout(() => {
         closeDialog();
-      }, 3000);
+      }, 5000);
+    } else {
+      postForm();
     }
   }
 
@@ -75,7 +89,7 @@ const Send = () => {
     res = await res.text();
     res = JSON.parse(res);
 
-    return res;
+    navigate(`/folder/${res.id}`);
   }
 
   function createInfoFile(files) {
@@ -125,17 +139,10 @@ const Send = () => {
     <>
       <NavBar />
       <dialog ref={dialogRef}>{message}</dialog>
+      <button onClick={() => handleUpload('file')}>Upload Files</button>
+      <button onClick={() => handleUpload('folder')}>Upload Folder</button>
 
       <form ref={formRef}>
-        {/* <h6>Select files</h6>
-        <input
-          type='file'
-          name='files'
-          onChange={handleFileChange}
-          ref={fileRef}
-          multiple
-        /> */}
-        <h6>Select Folder</h6>
         <input
           type='file'
           name='files'
@@ -143,11 +150,9 @@ const Send = () => {
           ref={fileRef}
           webkitdirectory='true'
           multiple
+          required
+          hidden
         />
-        <br />
-        <br />
-        <br />
-        <input type='submit' value='Upload' />
       </form>
     </>
   );
