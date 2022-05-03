@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import Qr from '../components/Qr';
 import Camera from '../components/Camera';
 
+import Navbar from '../components/Navbar';
+
 import { API_SERVER, WEB_SOCKET_SERVER } from '../utils/config';
 
 const Receive = () => {
@@ -53,6 +55,7 @@ const Receive = () => {
 
   return (
     <>
+      <Navbar />
       <h3>Receive</h3>
       <div id='method-div'>
         {method === 'qr' ? qr : camera}

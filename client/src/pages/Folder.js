@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import Qr from '../components/Qr';
 import Camera from '../components/Camera';
 
+import Navbar from '../components/Navbar';
+
 import { API_SERVER } from '../utils/config';
 
 const Folder = () => {
@@ -73,6 +75,7 @@ const Folder = () => {
 
   return (
     <>
+      <Navbar />
       <h3>File</h3>
       <button onClick={handleDownload}>Download</button>
       <table>

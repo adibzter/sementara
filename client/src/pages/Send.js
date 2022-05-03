@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { zip } from 'fflate';
 
+import NavBar from '../components/Navbar';
+
 import { API_SERVER } from '../utils/config';
 
 const Send = () => {
@@ -121,6 +123,7 @@ const Send = () => {
 
   return (
     <>
+      <NavBar />
       <dialog ref={dialogRef}>{message}</dialog>
 
       <form ref={formRef}>
