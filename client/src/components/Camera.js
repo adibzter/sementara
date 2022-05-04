@@ -26,10 +26,10 @@ const Camera = ({ folderId, sdp, peer, setCallerConnection }) => {
           const isValid = handleData(data);
 
           if (isValid) {
-            qrScanner.destroy();
+            // qrScanner.destroy();
             // alert('Done scanning');
           } else {
-            alert('QR not valid');
+            alert('Invalid QR Code');
           }
         });
         qrScanner.start();
@@ -70,6 +70,10 @@ const Camera = ({ folderId, sdp, peer, setCallerConnection }) => {
 
     // QR created by receiver
     else if (action === 'receive') {
+      if (!action || !userId || !folderId) {
+        return false;
+      }
+
       const ws = new WebSocket(WEB_SOCKET_SERVER);
       ws.onopen = (e) => {
         ws.send(

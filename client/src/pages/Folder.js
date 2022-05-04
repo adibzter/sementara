@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import Qr from '../components/Qr';
 import Camera from '../components/Camera';
@@ -15,12 +16,12 @@ const Folder = () => {
   const [qr, setQr] = useState(null);
   const [camera, setCamera] = useState(null);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     // /folder/:id/info
     const id = window.location.pathname.split('/')[2];
     setFolderId(id);
-    setQr(<Qr qrData={JSON.stringify({ action: 'send', folderId: id })} />);
-    setCamera(<Camera folderId={id} />);
   }, []);
 
   useEffect(() => {
@@ -31,6 +32,16 @@ const Folder = () => {
     (async () => {
       try {
         const res = await fetch(`${API_SERVER}/api/folder/${folderId}/info`);
+
+        // Folder not found
+        if (res.status !== 200) {
+          navigate('/', { replace: true });
+          return;
+        }
+
+        setQr(<Qr qrData={JSON.stringify({ action: 'send', folderId })} />);
+        setCamera(<Camera folderId={folderId} />);
+
         const { type, filenames } = await res.json();
 
         for (let i in filenames) {
