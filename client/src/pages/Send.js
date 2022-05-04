@@ -16,15 +16,6 @@ const Send = () => {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    formRef.current.onsubmit = async (e) => {
-      e.preventDefault();
-
-      const data = await postForm();
-      navigate(`/folder/${data.id}`);
-    };
-  }, []);
-
   function handleUpload(type) {
     const input = fileRef.current;
 
@@ -40,6 +31,25 @@ const Send = () => {
   function handleFileChange(e) {
     const files = e.target.files;
     checkFilesSizes(files);
+  }
+
+  function handleDropEvent(e) {
+    e.preventDefault();
+
+    const input = fileRef.current;
+    const files = e.dataTransfer.files;
+    input.files = files;
+
+    const string = `Are you sure want to upload ${files.length} files(s)?`;
+    if (window.confirm(string)) {
+      checkFilesSizes(files);
+    } else {
+      input.value = '';
+    }
+  }
+
+  function preventDefault(e) {
+    e.preventDefault();
   }
 
   function checkFilesSizes(files) {
@@ -137,23 +147,31 @@ const Send = () => {
 
   return (
     <>
-      <NavBar />
-      <dialog ref={dialogRef}>{message}</dialog>
-      <button onClick={() => handleUpload('file')}>Upload Files</button>
-      <button onClick={() => handleUpload('folder')}>Upload Folder</button>
+      <div
+        id='send-page'
+        onDragLeave={preventDefault}
+        onDragOver={preventDefault}
+        onDrop={handleDropEvent}
+        style={{ height: '100vh' }}
+      >
+        <NavBar />
+        <dialog ref={dialogRef}>{message}</dialog>
+        <button onClick={() => handleUpload('file')}>Upload Files</button>
+        <button onClick={() => handleUpload('folder')}>Upload Folder</button>
 
-      <form ref={formRef}>
-        <input
-          type='file'
-          name='files'
-          onChange={handleFileChange}
-          ref={fileRef}
-          webkitdirectory='true'
-          multiple
-          required
-          hidden
-        />
-      </form>
+        <form ref={formRef}>
+          <input
+            type='file'
+            name='files'
+            onChange={handleFileChange}
+            ref={fileRef}
+            webkitdirectory='true'
+            multiple
+            required
+            hidden
+          />
+        </form>
+      </div>
     </>
   );
 };
