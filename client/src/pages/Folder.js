@@ -5,6 +5,8 @@ import Qr from '../components/Qr';
 import Camera from '../components/Camera';
 
 import Navbar from '../components/Navbar';
+import Center from '../components/Center';
+import Button from '../components/Button';
 
 import { API_SERVER } from '../utils/config';
 
@@ -87,28 +89,30 @@ const Folder = () => {
   return (
     <>
       <Navbar />
-      <h3>File</h3>
-      <button onClick={handleDownload}>Download</button>
-      <table>
-        <tbody>
-          <tr>
-            <th>File Name</th>
-          </tr>
-          {filenames.map((filename, i) => {
-            return (
-              <tr key={i}>
-                <td>{filename}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <Center>
+        <Button text='Download' onClick={handleDownload} />
+        <table>
+          <tbody>
+            <tr>
+              <th>File Name</th>
+            </tr>
+            {filenames.map((filename, i) => {
+              return (
+                <tr key={i}>
+                  <td>{filename}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
 
-      <div id='method-div'>
-        {method === 'qr' ? qr : camera}
-        <button onClick={() => setMethod('qr')}>Show QR</button>
-        <button onClick={() => setMethod('camera')}>Show Camera</button>
-      </div>
+        <div id='method-div'>
+          {method === 'qr' ? qr : camera}
+          <br />
+          <Button text='Show QR' onClick={() => setMethod('qr')} />
+          <Button text='Scan QR' onClick={() => setMethod('camera')} />
+        </div>
+      </Center>
     </>
   );
 };

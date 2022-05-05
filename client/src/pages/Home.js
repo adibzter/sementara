@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import Center from '../components/Center';
+import Navbar from '../components/Navbar';
 import Qr from '../components/Qr';
 import Camera from '../components/Camera';
 
@@ -46,8 +48,12 @@ const Home = () => {
   }
   return (
     <>
-      {qr}
-      {camera}
+      <Navbar />
+      <Center>
+        <h3>Home</h3>
+        {qr}
+        {camera}
+      </Center>
     </>
   );
 };

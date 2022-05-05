@@ -2,16 +2,16 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { zip } from 'fflate';
 
-import NavBar from '../components/Navbar';
+import Navbar from '../components/Navbar';
+import Center from '../components/Center';
+import Button from '../components/Button';
 
 import { API_SERVER } from '../utils/config';
 
 const Send = () => {
   const [message, setMessage] = useState('');
-  const [uploadType, setUploadType] = useState('file');
 
   const dialogRef = useRef(null);
-  const formRef = useRef(null);
   const fileRef = useRef(null);
 
   const navigate = useNavigate();
@@ -147,6 +147,7 @@ const Send = () => {
 
   return (
     <>
+      <Navbar />
       <div
         id='send-page'
         onDragLeave={preventDefault}
@@ -154,12 +155,11 @@ const Send = () => {
         onDrop={handleDropEvent}
         style={{ height: '100vh' }}
       >
-        <NavBar />
-        <dialog ref={dialogRef}>{message}</dialog>
-        <button onClick={() => handleUpload('file')}>Upload Files</button>
-        <button onClick={() => handleUpload('folder')}>Upload Folder</button>
+        <Center>
+          <dialog ref={dialogRef}>{message}</dialog>
+          <Button text='Upload Files' onClick={() => handleUpload('file')} />
+          <Button text='Upload Folder' onClick={() => handleUpload('folder')} />
 
-        <form ref={formRef}>
           <input
             type='file'
             name='files'
@@ -170,7 +170,7 @@ const Send = () => {
             required
             hidden
           />
-        </form>
+        </Center>
       </div>
     </>
   );

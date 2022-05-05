@@ -1,0 +1,23 @@
+@import './variables';
+
+body {
+  margin: 0;
+  color: white;
+  background-color: $backgroundColor;
+
+  &:hover::-webkit-scrollbar-thumb {
+    background: $scrollbar-color;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent;
+
+  &:hover {
+    background: $scrollbar-color;
+  }
+}

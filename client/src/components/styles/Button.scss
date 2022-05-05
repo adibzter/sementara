@@ -1,0 +1,14 @@
+@import '../../styles/variables';
+
+.button {
+  background-color: $buttonColor;
+  color: white;
+  width: 10rem;
+  height: 3rem;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $buttonColor + 30;
+  }
+}

@@ -5,6 +5,8 @@ import Qr from '../components/Qr';
 import Camera from '../components/Camera';
 
 import Navbar from '../components/Navbar';
+import Center from '../components/Center';
+import Button from '../components/Button';
 
 import { API_SERVER, WEB_SOCKET_SERVER } from '../utils/config';
 
@@ -56,12 +58,14 @@ const Receive = () => {
   return (
     <>
       <Navbar />
-      <h3>Receive</h3>
-      <div id='method-div'>
-        {method === 'qr' ? qr : camera}
-        <button onClick={() => setMethod('qr')}>Show QR</button>
-        <button onClick={() => setMethod('camera')}>Show Camera</button>
-      </div>
+      <Center>
+        <div id='method-div'>
+          {method === 'qr' ? qr : camera}
+          <br />
+          <Button text='Show QR' onClick={() => setMethod('qr')} />
+          <Button text='Show Camera' onClick={() => setMethod('camera')} />
+        </div>
+      </Center>
     </>
   );
 };

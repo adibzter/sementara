@@ -7,6 +7,8 @@ import Send from './pages/Send';
 import Receive from './pages/Receive';
 import Folder from './pages/Folder';
 
+import './styles/App.css';
+
 function App() {
   useEffect(() => {
     (async () => {
