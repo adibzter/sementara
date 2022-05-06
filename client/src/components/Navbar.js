@@ -6,14 +6,14 @@ import './styles/Navbar.css';
 const Navbar = () => {
   return (
     <div id='navbar'>
-      <Link to='/'>
-        <Button text='Home' />
-      </Link>
+      {/* <Link to='/'>
+        <Button>Home</Button>
+      </Link> */}
       <Link to='/send'>
-        <Button text='Send' />
+        <Button>Send</Button>
       </Link>
       <Link to='/receive'>
-        <Button text='Receive' />
+        <Button>Receive</Button>
       </Link>
     </div>
   );

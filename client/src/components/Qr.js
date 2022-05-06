@@ -25,7 +25,13 @@ const Qr = ({ qrData }) => {
 
   return (
     <>
-      <img width='50%' src={qrSrc} alt='qr-code' ref={qrRef} hidden />
+      <img
+        src={qrSrc}
+        alt='qr-code'
+        style={{ border: 'solid 5px red' }}
+        ref={qrRef}
+        hidden
+      />
     </>
   );
 };

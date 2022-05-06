@@ -5,11 +5,14 @@ import { zip } from 'fflate';
 import Navbar from '../components/Navbar';
 import Center from '../components/Center';
 import Button from '../components/Button';
+import Loader from '../components/Loader';
 
 import { API_SERVER } from '../utils/config';
 
 const Send = () => {
   const [message, setMessage] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const dialogRef = useRef(null);
   const fileRef = useRef(null);
@@ -80,7 +83,8 @@ const Send = () => {
   }
 
   async function postForm() {
-    showDialog('Zipping files...');
+    setMessage('Zipping files');
+    setIsUploading(true);
 
     let files = fileRef.current.files;
 
@@ -91,15 +95,27 @@ const Send = () => {
     data.append('files', infoFile);
     data.append('files', zipFile);
 
-    showDialog('Uploading files...');
-    let res = await fetch(`${API_SERVER}/api/send`, {
-      method: 'POST',
-      body: data,
-    });
-    res = await res.text();
-    res = JSON.parse(res);
+    setMessage('Uploading files');
 
-    navigate(`/folder/${res.id}`);
+    // let res = await fetch(`${API_SERVER}/api/send`, {
+    //   method: 'POST',
+    //   body: data,
+    // });
+    // res = await res.text();
+    // res = JSON.parse(res);
+    const xhr = new XMLHttpRequest();
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) {
+        setProgress((e.loaded / e.total) * 100);
+      }
+    };
+    xhr.onloadend = () => {
+      const res = JSON.parse(xhr.responseText);
+
+      navigate(`/folder/${res.id}`);
+    };
+    xhr.open('POST', `${API_SERVER}/api/send`);
+    xhr.send(data);
   }
 
   function createInfoFile(files) {
@@ -153,23 +169,41 @@ const Send = () => {
         onDragLeave={preventDefault}
         onDragOver={preventDefault}
         onDrop={handleDropEvent}
-        style={{ height: '100vh' }}
       >
         <Center>
-          <dialog ref={dialogRef}>{message}</dialog>
-          <Button text='Upload Files' onClick={() => handleUpload('file')} />
-          <Button text='Upload Folder' onClick={() => handleUpload('folder')} />
+          {isUploading ? (
+            <Loader>
+              <>
+                <h3>{message}</h3>
+                <progress value={progress} max='100'></progress>
+                {progress} %
+              </>
+            </Loader>
+          ) : (
+            <>
+              <h2>Send Files</h2>
+              <dialog ref={dialogRef}>{message}</dialog>
+              <div>
+                <Button onClick={() => handleUpload('file')}>
+                  Upload Files
+                </Button>
+                <Button onClick={() => handleUpload('folder')}>
+                  Upload Folder
+                </Button>
+              </div>
 
-          <input
-            type='file'
-            name='files'
-            onChange={handleFileChange}
-            ref={fileRef}
-            webkitdirectory='true'
-            multiple
-            required
-            hidden
-          />
+              <input
+                type='file'
+                name='files'
+                onChange={handleFileChange}
+                ref={fileRef}
+                webkitdirectory='true'
+                multiple
+                required
+                hidden
+              />
+            </>
+          )}
         </Center>
       </div>
     </>

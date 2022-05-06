@@ -7,13 +7,18 @@ import Camera from '../components/Camera';
 import Navbar from '../components/Navbar';
 import Center from '../components/Center';
 import Button from '../components/Button';
+import Loader from '../components/Loader';
 
 import { API_SERVER } from '../utils/config';
+
+import './styles/Folder.css';
 
 const Folder = () => {
   const [type, setType] = useState('');
   const [filenames, setFilenames] = useState([]);
   const [folderId, setFolderId] = useState('');
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [method, setMethod] = useState('qr');
   const [qr, setQr] = useState(null);
   const [camera, setCamera] = useState(null);
@@ -60,7 +65,14 @@ const Folder = () => {
     })();
   }, [folderId]);
 
+  function handleCopyUrl(e) {
+    navigator.clipboard.writeText(window.location.href);
+    e.target.innerText = 'Url Copied ✔';
+    e.target.style.backgroundColor = 'green';
+  }
+
   function handleDownload() {
+    setIsDownloading(true);
     if (type === 'folder') {
       downloadZipFile(filenames[0]);
     } else if (type === 'file') {
@@ -69,10 +81,29 @@ const Folder = () => {
   }
 
   async function downloadZipFile(filename) {
-    const res = await fetch(
+    // const res = await fetch(
+    //   `${API_SERVER}/api/folder/${folderId}/download/one/${filename}`
+    // );
+    // downloadToDisk(await res.blob(), filename);
+    // setIsDownloading(false);
+
+    const xhr = new XMLHttpRequest();
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) {
+        setProgress((e.loaded / e.total) * 100);
+      }
+    };
+    xhr.onload = () => {
+      downloadToDisk(Blob([xhr.response]), filename);
+      setIsDownloading(false);
+
+      // navigate(`/folder/${res.id}`);
+    };
+    xhr.open(
+      'GET',
       `${API_SERVER}/api/folder/${folderId}/download/one/${filename}`
     );
-    downloadToDisk(await res.blob(), filename);
+    xhr.send();
   }
 
   function downloadToDisk(blob, filename) {
@@ -90,28 +121,43 @@ const Folder = () => {
     <>
       <Navbar />
       <Center>
-        <Button text='Download' onClick={handleDownload} />
-        <table>
-          <tbody>
-            <tr>
-              <th>File Name</th>
-            </tr>
-            {filenames.map((filename, i) => {
-              return (
-                <tr key={i}>
-                  <td>{filename}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        {!filenames || !qr || isDownloading ? (
+          <Loader>
+            {isDownloading ? (
+              <>
+                <h3>Downloading Files</h3>
+                <progress value={progress} max='100'></progress>
+                {progress} %
+              </>
+            ) : undefined}
+          </Loader>
+        ) : (
+          <>
+            <div id='method-div'>{method === 'qr' ? qr : camera}</div>
+            <div>
+              <Button onClick={() => setMethod('qr')}>Show QR</Button>
+              <Button onClick={() => setMethod('camera')}>Scan QR</Button>
+              <br />
+              <Button onClick={handleCopyUrl}>Copy URL</Button>
+            </div>
 
-        <div id='method-div'>
-          {method === 'qr' ? qr : camera}
-          <br />
-          <Button text='Show QR' onClick={() => setMethod('qr')} />
-          <Button text='Scan QR' onClick={() => setMethod('camera')} />
-        </div>
+            <br />
+            <table>
+              <tbody>
+                {filenames.map((filename, i) => {
+                  return (
+                    <tr key={i}>
+                      <td>
+                        <li>{filename}</li>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            <Button onClick={handleDownload}>Download</Button>
+          </>
+        )}
       </Center>
     </>
   );

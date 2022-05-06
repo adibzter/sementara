@@ -1,9 +1,9 @@
 import './styles/Button.css';
 
-const Button = ({ text, onClick }) => {
+const Button = ({ children, onClick, margin = '5px' }) => {
   return (
-    <button className='button' onClick={onClick}>
-      {text}
+    <button className='button' onClick={onClick} style={{ margin }}>
+      {children}
     </button>
   );
 };

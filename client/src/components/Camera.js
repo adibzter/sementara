@@ -37,6 +37,14 @@ const Camera = ({ folderId, sdp, peer, setCallerConnection }) => {
         console.error(err);
       }
     })();
+
+    return () => {
+      const tracks = window.cameraStream.getTracks();
+      for (let track of tracks) {
+        window.cameraStream.removeTrack(track);
+        track.stop();
+      }
+    };
   }, []);
 
   function showCameraVideo() {
@@ -46,7 +54,6 @@ const Camera = ({ folderId, sdp, peer, setCallerConnection }) => {
     video.onloadedmetadata = () => {
       video.play();
     };
-    video.play();
   }
 
   function handleData(data) {
@@ -62,10 +69,7 @@ const Camera = ({ folderId, sdp, peer, setCallerConnection }) => {
 
     // QR created by sender
     if (action === 'send') {
-      navigate(`/folder/${folderId}`, { replace: true });
-      window.cameraStream.getTracks().forEach((track) => {
-        track.stop();
-      });
+      navigate(`/folder/${folderId}`);
     }
 
     // QR created by receiver
@@ -125,7 +129,11 @@ const Camera = ({ folderId, sdp, peer, setCallerConnection }) => {
 
   return (
     <>
-      <video width='300px' height='300px' ref={videoRef}></video>
+      <video
+        width='300px'
+        style={{ border: 'solid 5px red' }}
+        ref={videoRef}
+      ></video>
     </>
   );
 };

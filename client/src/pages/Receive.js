@@ -7,6 +7,7 @@ import Camera from '../components/Camera';
 import Navbar from '../components/Navbar';
 import Center from '../components/Center';
 import Button from '../components/Button';
+import Loader from '../components/Loader';
 
 import { API_SERVER, WEB_SOCKET_SERVER } from '../utils/config';
 
@@ -32,9 +33,18 @@ const Receive = () => {
     res = await res.json();
 
     setQr(<Qr qrData={JSON.stringify(res)} />);
-    setCamera(<Camera />);
 
     window.userId = res.userId;
+  }
+
+  function showQr() {
+    setMethod('qr');
+    setCamera(null);
+  }
+
+  function showCamera() {
+    setMethod('camera');
+    setCamera(<Camera />);
   }
 
   function connectWebSocket() {
@@ -59,12 +69,18 @@ const Receive = () => {
     <>
       <Navbar />
       <Center>
-        <div id='method-div'>
-          {method === 'qr' ? qr : camera}
-          <br />
-          <Button text='Show QR' onClick={() => setMethod('qr')} />
-          <Button text='Show Camera' onClick={() => setMethod('camera')} />
-        </div>
+        {!qr ? (
+          <Loader />
+        ) : (
+          <>
+            <h2>Receive Files</h2>
+            <div id='method-div'>{method === 'qr' ? qr : camera}</div>
+            <div>
+              <Button onClick={showQr}>Show QR</Button>
+              <Button onClick={showCamera}>Scan QR</Button>
+            </div>
+          </>
+        )}
       </Center>
     </>
   );

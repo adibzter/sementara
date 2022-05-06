@@ -1,0 +1,16 @@
+table {
+  padding: 0 10px;
+    width: 50vw;
+  border: dashed 1px white;
+  border-radius: 5px;
+
+  td {
+    padding: 5px;
+  }
+}
+
+@media only screen and (max-width: 599px) {
+  table {
+    width: 90vw;
+  }
+}
