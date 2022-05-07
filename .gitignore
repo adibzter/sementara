@@ -4,3 +4,4 @@ build/
 *.css
 *.css.map
 test.js
+gcp-key.json
