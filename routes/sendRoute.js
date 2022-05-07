@@ -1,4 +1,3 @@
-// const { MongoClient, ServerApiVersion } = require('mongodb');
 const router = require('express').Router();
 const multer = require('multer');
 const { v4: uuid } = require('uuid');
@@ -28,27 +27,6 @@ router.post('/', upload.array('files'), async (req, res, next) => {
 
   next();
 });
-
-// async function saveToDb(id) {
-//   const uri =
-//     'mongodb+srv://adib:adib@sementara.ulwzn.mongodb.net/sementara?retryWrites=true&w=majority';
-
-//   const client = new MongoClient(uri, {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true,
-//     serverApi: ServerApiVersion.v1,
-//   });
-
-//   const connection = await client.connect();
-//   const collection = client.db('sementara').collection('folders');
-
-//   const folder = {
-//     id,
-//   };
-
-//   await collection.insertOne(folder);
-//   connection.close();
-// }
 
 async function uploadToBucket(id, files) {
   const promises = [];
