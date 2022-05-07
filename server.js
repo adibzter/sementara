@@ -10,7 +10,7 @@ app.use(compression({ memLevel: 9 }));
 
 const PORT = process.env.PORT || 5000;
 const httpServer = app.listen(PORT, () => {
-  console.log(`Server start on port ${PORT}`);
+  console.log('Server start on port:', PORT);
 });
 
 app.use((req, res, next) => {
@@ -34,11 +34,11 @@ app.use('/api/folder', require('./routes/folderRoute'));
 // app.use('/api', peerServer);
 
 // Server static files
-// app.use(express.static('client/build'));
+app.use(express.static('client/build'));
 
 // Handle URL
 app.get('*', (req, res) => {
-  // res.sendFile(path.resolve(__dirname, 'client/build/index.html'));
+  res.sendFile(path.resolve(__dirname, 'client/build/index.html'));
 });
 
 // WebSocket Server
