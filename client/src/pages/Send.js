@@ -9,6 +9,8 @@ import Loader from '../components/Loader';
 
 import { API_SERVER } from '../utils/config';
 
+import './styles/Send.css';
+
 const Send = () => {
   const [message, setMessage] = useState('');
   const [isUploading, setIsUploading] = useState(false);
@@ -33,11 +35,46 @@ const Send = () => {
 
   function handleFileChange(e) {
     const files = e.target.files;
-    checkFilesSizes(files);
+    if (checkFilesSizes(files)) {
+      postForm();
+    }
+  }
+
+  function handleDragOverEvent(e) {
+    if (e.target.id !== 'center') {
+      return;
+    }
+
+    e.preventDefault();
+    e.target.style.background = 'gray';
+    e.target.style.border = 'dashed 3px white';
+    e.target.style.transition = '0.2s';
+  }
+
+  function handleDragLeaveEvent(e) {
+    if (e.target.id !== 'center') {
+      return;
+    }
+
+    e.preventDefault();
+    e.target.style.background = '';
+    e.target.style.border = 'dashed 3px transparent';
   }
 
   function handleDropEvent(e) {
+    if (e.target.id !== 'center') {
+      return;
+    }
     e.preventDefault();
+    // const items = e.dataTransfer.items;
+    // for (let item of items) {
+    //   item = item.webkitGetAsEntry();
+    //   if (item) {
+    //     scanFiles(item);
+    //   }
+    // }
+    e.target.style.background = '';
+    e.target.style.border = 'dashed 3px transparent';
 
     const input = fileRef.current;
     const files = e.dataTransfer.files;
@@ -45,14 +82,30 @@ const Send = () => {
 
     const string = `Are you sure want to upload ${files.length} files(s)?`;
     if (window.confirm(string)) {
-      checkFilesSizes(files);
+      if (checkFilesSizes(files)) {
+        postForm();
+      }
     } else {
       input.value = '';
     }
   }
 
-  function preventDefault(e) {
-    e.preventDefault();
+  // https://developer.mozilla.org/en-US/docs/Web/API/DataTransferItem/webkitGetAsEntry
+  function scanFiles(item) {
+    if (item.isFile) {
+      item.file((file) => {
+        const newFile = new File([file], file.name);
+        file.webkitRelativePath = item.fullPath;
+        console.log(file);
+      });
+    } else if (item.isDirectory) {
+      let directoryReader = item.createReader();
+      directoryReader.readEntries((entries) => {
+        entries.forEach((entry) => {
+          scanFiles(entry);
+        });
+      });
+    }
   }
 
   function checkFilesSizes(files) {
@@ -68,9 +121,11 @@ const Send = () => {
       setTimeout(() => {
         closeDialog();
       }, 5000);
-    } else {
-      postForm();
+
+      return false;
     }
+
+    return true;
   }
 
   function showDialog(message) {
@@ -97,12 +152,6 @@ const Send = () => {
 
     setMessage('Uploading files');
 
-    // let res = await fetch(`${API_SERVER}/api/send`, {
-    //   method: 'POST',
-    //   body: data,
-    // });
-    // res = await res.text();
-    // res = JSON.parse(res);
     const xhr = new XMLHttpRequest();
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable) {
@@ -166,8 +215,8 @@ const Send = () => {
       <Navbar />
       <div
         id='send-page'
-        onDragLeave={preventDefault}
-        onDragOver={preventDefault}
+        onDragOver={handleDragOverEvent}
+        onDragLeave={handleDragLeaveEvent}
         onDrop={handleDropEvent}
       >
         <Center>
@@ -192,6 +241,8 @@ const Send = () => {
                 </Button>
               </div>
 
+              <h4>or</h4>
+              <h3>Drop files here</h3>
               <input
                 type='file'
                 name='files'

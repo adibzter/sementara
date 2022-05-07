@@ -26,7 +26,7 @@ const Camera = ({ folderId, sdp, peer, setCallerConnection }) => {
           const isValid = handleData(data);
 
           if (isValid) {
-            // qrScanner.destroy();
+            qrScanner.destroy();
             // alert('Done scanning');
           } else {
             alert('Invalid QR Code');

@@ -20,6 +20,7 @@ const Folder = () => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [method, setMethod] = useState('qr');
+  const [methodButtonText, setMethodButtonText] = useState('Show Camera');
   const [qr, setQr] = useState(null);
   const [camera, setCamera] = useState(null);
 
@@ -65,9 +66,19 @@ const Folder = () => {
     })();
   }, [folderId]);
 
+  function handleMethod() {
+    if (method === 'qr') {
+      setMethod('camera');
+      setMethodButtonText('Show QR');
+    } else if (method === 'camera') {
+      setMethod('qr');
+      setMethodButtonText('Show Camera');
+    }
+  }
+
   function handleCopyUrl(e) {
     navigator.clipboard.writeText(window.location.href);
-    e.target.innerText = 'Url Copied ✔';
+    e.target.innerText = 'URL Copied ✔';
     e.target.style.backgroundColor = 'green';
   }
 
@@ -81,28 +92,25 @@ const Folder = () => {
   }
 
   async function downloadZipFile(filename) {
-    // const res = await fetch(
-    //   `${API_SERVER}/api/folder/${folderId}/download/one/${filename}`
-    // );
-    // downloadToDisk(await res.blob(), filename);
-    // setIsDownloading(false);
-
     const xhr = new XMLHttpRequest();
+    xhr.responseType = 'blob';
+
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable) {
         setProgress((e.loaded / e.total) * 100);
       }
     };
-    xhr.onload = () => {
-      downloadToDisk(Blob([xhr.response]), filename);
-      setIsDownloading(false);
 
-      // navigate(`/folder/${res.id}`);
+    xhr.onload = () => {
+      downloadToDisk(xhr.response, filename);
+      setIsDownloading(false);
     };
+
     xhr.open(
       'GET',
       `${API_SERVER}/api/folder/${folderId}/download/one/${filename}`
     );
+
     xhr.send();
   }
 
@@ -135,9 +143,7 @@ const Folder = () => {
           <>
             <div id='method-div'>{method === 'qr' ? qr : camera}</div>
             <div>
-              <Button onClick={() => setMethod('qr')}>Show QR</Button>
-              <Button onClick={() => setMethod('camera')}>Scan QR</Button>
-              <br />
+              <Button onClick={handleMethod}>{methodButtonText}</Button>
               <Button onClick={handleCopyUrl}>Copy URL</Button>
             </div>
 

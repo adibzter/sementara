@@ -13,6 +13,7 @@ import { API_SERVER, WEB_SOCKET_SERVER } from '../utils/config';
 
 const Receive = () => {
   const [method, setMethod] = useState('qr');
+  const [methodButtonText, setMethodButtonText] = useState('Show Camera');
   const [qr, setQr] = useState(null);
   const [camera, setCamera] = useState(null);
 
@@ -33,18 +34,19 @@ const Receive = () => {
     res = await res.json();
 
     setQr(<Qr qrData={JSON.stringify(res)} />);
+    setCamera(<Camera />);
 
     window.userId = res.userId;
   }
 
-  function showQr() {
-    setMethod('qr');
-    setCamera(null);
-  }
-
-  function showCamera() {
-    setMethod('camera');
-    setCamera(<Camera />);
+  function handleMethod() {
+    if (method === 'qr') {
+      setMethod('camera');
+      setMethodButtonText('Show QR');
+    } else if (method === 'camera') {
+      setMethod('qr');
+      setMethodButtonText('Show Camera');
+    }
   }
 
   function connectWebSocket() {
@@ -76,8 +78,7 @@ const Receive = () => {
             <h2>Receive Files</h2>
             <div id='method-div'>{method === 'qr' ? qr : camera}</div>
             <div>
-              <Button onClick={showQr}>Show QR</Button>
-              <Button onClick={showCamera}>Scan QR</Button>
+              <Button onClick={handleMethod}>{methodButtonText}</Button>
             </div>
           </>
         )}
