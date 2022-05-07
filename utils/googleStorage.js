@@ -4,7 +4,7 @@ const { Storage } = require('@google-cloud/storage');
 
 // Creates a client
 const storage = new Storage({
-  keyFilename: path.join(__dirname, '../skrin-sementara-bucket'),
+  keyFilename: path.join(__dirname, '../secrets/skrin-sementara-bucket'),
   projectId: 'skrin-1',
 });
 
