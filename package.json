@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
+    "postinstall": "node-sass client/src client/src",
     "start": "node server",
     "server": "nodemon server",
     "client": "npm start --prefix client",
