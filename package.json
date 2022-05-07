@@ -4,7 +4,6 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "postinstall": "sass client/src:client/src",
     "start": "node server",
     "server": "nodemon server",
     "client": "npm start --prefix client",
@@ -21,7 +20,6 @@
     "express": "^4.17.1",
     "multer": "^1.4.4",
     "peer": "^0.6.1",
-    "sass": "^1.51.0",
     "uuid": "^8.3.2",
     "ws": "^8.5.0"
   },

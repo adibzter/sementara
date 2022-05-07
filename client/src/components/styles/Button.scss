@@ -1,3 +1,4 @@
+@use 'sass:color';
 @import '../../styles/variables';
 
 .button {
@@ -10,6 +11,7 @@
   cursor: pointer;
 
   &:hover {
-    background-color: $buttonColor + 30;
+    // background-color: $buttonColor + 30;
+    background-color: color.scale($buttonColor, $lightness: 30%);
   }
 }
