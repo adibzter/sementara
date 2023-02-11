@@ -14,7 +14,7 @@ Web app for sharing files powered by NodeJS & ReactJS
 
 ## Live Demo
 
-https://sementara-c3d6yhsnla-as.a.run.app/send
+https://sementara.skrin.xyz/send
 
 ## Run Locally
 
