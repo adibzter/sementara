@@ -9,7 +9,7 @@ import Center from '../components/Center';
 import Button from '../components/Button';
 import Loader from '../components/Loader';
 
-import { API_SERVER, WEB_SOCKET_SERVER } from '../utils/config';
+import { API_SERVER, QR_URL_ORIGIN, WEB_SOCKET_SERVER } from '../utils/config';
 
 const Receive = () => {
   const [method, setMethod] = useState('qr');
@@ -33,7 +33,7 @@ const Receive = () => {
     let res = await fetch(`${API_SERVER}/api/receive`);
     res = await res.json();
 
-    setQr(<Qr qrData={JSON.stringify(res)} />);
+    setQr(<Qr qrData={`${QR_URL_ORIGIN}/receive/${res.userId}`} />);
     setCamera(<Camera />);
 
     window.userId = res.userId;

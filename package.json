@@ -1,6 +1,6 @@
 {
   "name": "sementara",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "main": "server.js",
   "scripts": {
@@ -13,18 +13,18 @@
   },
   "keywords": [],
   "author": "Adib Zaini",
-  "license": "",
+  "license": "MIT",
   "dependencies": {
-    "@google-cloud/storage": "^5.19.3",
+    "@google-cloud/storage": "^6.9.2",
     "compression": "^1.7.4",
     "express": "^4.17.1",
-    "multer": "^1.4.4",
+    "multer": "^1.4.5-lts.1",
     "peer": "^0.6.1",
-    "uuid": "^8.3.2",
-    "ws": "^8.5.0"
+    "uuid": "^9.0.0",
+    "ws": "^8.12.1"
   },
   "devDependencies": {
-    "concurrently": "^6.2.0",
+    "concurrently": "^7.6.0",
     "nodemon": "^2.0.12"
   }
 }

@@ -9,7 +9,7 @@ import Center from '../components/Center';
 import Button from '../components/Button';
 import Loader from '../components/Loader';
 
-import { API_SERVER } from '../utils/config';
+import { API_SERVER, QR_URL_ORIGIN } from '../utils/config';
 
 import './styles/Folder.css';
 
@@ -47,7 +47,7 @@ const Folder = () => {
           return;
         }
 
-        setQr(<Qr qrData={JSON.stringify({ action: 'send', folderId })} />);
+        setQr(<Qr qrData={`${QR_URL_ORIGIN}/folder/${folderId}`} />);
         setCamera(<Camera folderId={folderId} />);
 
         const { type, filenames } = await res.json();
