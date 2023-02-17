@@ -1,3 +1,5 @@
+[![Express Logo](https://sementara.skrin.xyz/favicon.ico)](http://sementara.skrin.xyz/send)
+
 # Sementara
 
 Web app for sharing files powered by NodeJS & ReactJS
