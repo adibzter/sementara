@@ -57,7 +57,12 @@ const Camera = ({ folderId, sdp, peer, setCallerConnection }) => {
   }
 
   function handleData(data) {
-    let whitelistedDomain = ['sementara.skrin.xyz', 'localhost', '192.168.1.6'];
+    let whitelistedDomain = [
+      'sementara.skrin.xyz',
+      'localhost',
+      '192.168.1.6',
+      'sementara-dev-c3d6yhsnla-as.a.run.app',
+    ];
 
     // https://localhost:3000/action/UUID
     let url = new URL(data);
