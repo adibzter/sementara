@@ -57,24 +57,44 @@ const Camera = ({ folderId, sdp, peer, setCallerConnection }) => {
   }
 
   function handleData(data) {
-    data = JSON.parse(data);
-    const action = data.action;
-    const userId = data.userId;
-    folderId = folderId || data.folderId;
+    let whitelistedDomain = [
+      'sementara.skrin.xyz',
+      'localhost',
+      '192.168.1.6',
+      'sementara-dev-c3d6yhsnla-as.a.run.app',
+    ];
 
-    // // Check QR validity
-    // if (!action || !userId || !folderId) {
-    //   return false;
-    // }
+    // https://localhost:3000/action/UUID
+    let url = new URL(data);
+    if (!whitelistedDomain.includes(url.hostname)) {
+      return false;
+    }
+
+    let action, uuid;
+    try {
+      data = data.split('/');
+      action = data[3];
+      uuid = data[4];
+    } catch (err) {
+      return false;
+    }
+
+    // Check QR validity
+    if (!action || !uuid) {
+      return false;
+    }
 
     // QR created by sender
-    if (action === 'send') {
-      navigate(`/folder/${folderId}`);
+    if (action === 'folder') {
+      if (folderId) {
+        return false;
+      }
+      navigate(url.pathname);
     }
 
     // QR created by receiver
     else if (action === 'receive') {
-      if (!action || !userId || !folderId) {
+      if (!folderId) {
         return false;
       }
 
@@ -84,31 +104,39 @@ const Camera = ({ folderId, sdp, peer, setCallerConnection }) => {
           JSON.stringify({
             type: 'message',
             action,
-            userId,
+            userId: uuid,
             folderId,
           })
         );
         ws.close();
       };
     }
+    return true;
+  }
+
+  function _handleData(data) {
+    data = JSON.parse(data);
+    const action = data.action;
+    const userId = data.userId;
+    folderId = folderId || data.folderId;
 
     // QR created for webRTC connection
-    else if (action === 'connect') {
+    if (action === 'connect') {
       const conn = peer.connect(data.peerId);
       window.conn = conn;
       setCallerConnection(conn);
-      // const ws = new WebSocket(WEB_SOCKET_SERVER);
-      // ws.onopen = (e) => {
-      //   ws.send(
-      //     JSON.stringify({
-      //       type: 'message',
-      //       action,
-      //       id,
-      //       sdp,
-      //     })
-      //   );
-      //   ws.close();
-      // };
+      const ws = new WebSocket(WEB_SOCKET_SERVER);
+      ws.onopen = (e) => {
+        ws.send(
+          JSON.stringify({
+            type: 'message',
+            action,
+            // id,
+            sdp,
+          })
+        );
+        ws.close();
+      };
     }
 
     // QR for joining room

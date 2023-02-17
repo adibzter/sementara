@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 
 // Service worker installed
 self.addEventListener('install', async (e) => {
