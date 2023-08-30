@@ -5,6 +5,8 @@ import QrScanner from 'qr-scanner';
 
 import { WEB_SOCKET_SERVER } from '../utils/config';
 
+import './styles/Camera.css';
+
 const Camera = ({ folderId, sdp, peer, setCallerConnection }) => {
   const navigate = useNavigate();
   window.cameraStream = new MediaStream();
@@ -15,7 +17,10 @@ const Camera = ({ folderId, sdp, peer, setCallerConnection }) => {
     (async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
+          audio: false,
           video: {
+            width: { ideal: 999999 },
+            height: { ideal: 999999 },
             facingMode: { ideal: 'environment' },
           },
         });
@@ -60,7 +65,7 @@ const Camera = ({ folderId, sdp, peer, setCallerConnection }) => {
     let whitelistedDomain = [
       'sementara.skrin.xyz',
       'localhost',
-      '192.168.1.6',
+      '192.168.1.12',
       'sementara-dev-c3d6yhsnla-as.a.run.app',
     ];
 
@@ -157,11 +162,9 @@ const Camera = ({ folderId, sdp, peer, setCallerConnection }) => {
 
   return (
     <>
-      <video
-        width='300px'
-        style={{ border: 'solid 5px red' }}
-        ref={videoRef}
-      ></video>
+      <div id='camera-container'>
+        <video id='camera-video' ref={videoRef}></video>
+      </div>
     </>
   );
 };

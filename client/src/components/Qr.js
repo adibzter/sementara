@@ -28,7 +28,7 @@ const Qr = ({ qrData }) => {
       <img
         src={qrSrc}
         alt='qr-code'
-        style={{ border: 'solid 5px red' }}
+        style={{ border: 'solid 3px red', borderRadius: '10px' }}
         ref={qrRef}
         hidden
       />
