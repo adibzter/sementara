@@ -142,13 +142,18 @@ const Send = () => {
     setIsUploading(true);
 
     let files = fileRef.current.files;
-
     const infoFile = createInfoFile(files);
-    const zipFile = await createZipFile(files);
+
+    let fileToUpload;
+    if (files.length === 1) {
+      fileToUpload = files[0];
+    } else {
+      fileToUpload = await createZipFile(files);
+    }
 
     const data = new FormData();
     data.append('files', infoFile);
-    data.append('files', zipFile);
+    data.append('files', fileToUpload);
 
     setMessage('Uploading files');
 

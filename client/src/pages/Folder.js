@@ -84,7 +84,7 @@ const Folder = () => {
 
   function handleDownload() {
     setIsDownloading(true);
-    if (type === 'folder') {
+    if (type === 'folder' || filenames.length === 1) {
       downloadZipFile(filenames[0]);
     } else if (type === 'file') {
       downloadZipFile('sementara.zip');

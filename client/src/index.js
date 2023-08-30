@@ -9,7 +9,7 @@ ReactDOM.render(
   document.getElementById('root')
 );
 
-registerServiceWorker();
+// registerServiceWorker();
 async function registerServiceWorker() {
   if (navigator.serviceWorker) {
     try {
