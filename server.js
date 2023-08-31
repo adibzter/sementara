@@ -47,8 +47,9 @@ wss.setMaxListeners(0);
 
 const clients = {};
 wss.on('connection', (ws, req) => {
-  console.log('Headers', req.headers);
-  console.log(`Remote address: ${req.socket.remoteAddress}`);
+  // Only works if no proxy in front of our server
+  // console.log(`Remote address: ${req.socket.remoteAddress}`);
+  console.log(`Remote address: ${req.headers['x-forwarded-for']}`);
 
   // Recieve message from client
   ws.on('message', (message) => {
