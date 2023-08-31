@@ -69,7 +69,7 @@ const Camera = ({ folderId, sdp, peer, setCallerConnection }) => {
       'sementara-dev-c3d6yhsnla-as.a.run.app',
     ];
 
-    // https://localhost:3000/action/UUID
+    // https://localhost:3000/:action/:UUID
     let url = new URL(data);
     if (!whitelistedDomain.includes(url.hostname)) {
       return false;

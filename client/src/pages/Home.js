@@ -1,58 +1,65 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import Center from '../components/Center';
 import Navbar from '../components/Navbar';
-import Qr from '../components/Qr';
-import Camera from '../components/Camera';
 
 import { API_SERVER, WEB_SOCKET_SERVER } from '../utils/config';
 
 const Home = () => {
-  const [qr, setQr] = useState(null);
-  const [camera, setCamera] = useState(null);
+  const [networkAddress, setNetworkAddress] = useState('');
+  const [users, setUsers] = useState([]);
 
-  const navigate = useNavigate();
+  window.userId = null;
+  window.networkAddress = null;
 
   useEffect(() => {
     (async () => {
-      await getQr();
+      await getUserDetails();
       connectWebSocket();
     })();
   }, []);
 
-  async function getQr() {
+  async function getUserDetails() {
     let res = await fetch(`${API_SERVER}/api/socket/join`);
     res = await res.json();
 
-    setQr(<Qr qrData={JSON.stringify(res)} />);
-
-    window.res = res;
+    window.userId = res.userId;
+    window.networkAddress = res.networkAddress;
   }
 
   function connectWebSocket() {
     const ws = new WebSocket(WEB_SOCKET_SERVER);
-    window.ws = ws;
     ws.onopen = (e) => {
-      ws.send(JSON.stringify({ type: 'join', ...window.res }));
+      ws.send(
+        JSON.stringify({
+          type: 'join',
+          userId: window.userId,
+          networkAddress: window.networkAddress,
+        })
+      );
 
       ws.onmessage = (e) => {
         const data = JSON.parse(e.data);
+        setNetworkAddress(data.networkAddress);
+        setUsers(data.users);
 
-        if (data.action === 'join') {
-          navigate(`room/${data.roomId}`, { state: { caller: false } });
-        }
+        // navigate(`/folder/${data.folderId}`);
+        // ws.close();
       };
     };
-    setCamera(<Camera />);
   }
+
   return (
     <>
       <Navbar />
       <Center>
         <h3>Home</h3>
-        {qr}
-        {camera}
+        <p>{networkAddress}</p>
+        <ol>
+          {users.map((user) => (
+            <li key={user.userId}>{user.userId}</li>
+          ))}
+        </ol>
       </Center>
     </>
   );

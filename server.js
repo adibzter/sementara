@@ -25,7 +25,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // API endpoint
-// app.use('/api/socket', require('./routes/socketRoute'));
+app.use('/api/socket', require('./routes/socketRoute'));
 app.use('/api/send', require('./routes/sendRoute'));
 app.use('/api/receive', require('./routes/receiveRoute'));
 app.use('/api/folder', require('./routes/folderRoute'));
@@ -63,11 +63,15 @@ wss.on('connection', (ws, req) => {
 
     // Join room
     else if (data.type === 'join') {
-      ws.roomId = data.roomId;
+      ws.userId = data.userId;
+      ws.networkAddress = data.networkAddress;
+      clients[ws.userId] = ws;
 
-      if (data.action === 'join') {
-        sendToRoom(wss, ws, data);
-      }
+      sendUsersInSameNetwork(wss, ws);
+
+      // if (data.action === 'join') {
+      //   sendToRoom(wss, ws, data);
+      // }
     }
 
     // Client in room
@@ -91,6 +95,11 @@ wss.on('connection', (ws, req) => {
     }
   });
 
+  ws.on('close', () => {
+    delete clients[ws.userId];
+    sendUsersInSameNetwork(wss, ws);
+  });
+
   ws.on('error', (err) => {
     console.error(`ERROR: ${err}`);
   });
@@ -111,6 +120,32 @@ function sendToRoom(wss, ws, data) {
       client.roomId === data.roomId
     ) {
       client.send(JSON.stringify(data));
+    }
+  });
+}
+
+function sendUsersInSameNetwork(wss, ws) {
+  const params = {
+    action: 'network',
+    networkAddress: ws.networkAddress,
+    users: [],
+  };
+
+  for (const [key, value] of Object.entries(clients)) {
+    if (value.networkAddress === ws.networkAddress) {
+      const userDetail = {
+        userId: value.userId,
+      };
+      params.users.push(userDetail);
+    }
+  }
+
+  wss.clients.forEach((client) => {
+    if (
+      client.readyState === WebSocket.OPEN &&
+      client.networkAddress === ws.networkAddress
+    ) {
+      client.send(JSON.stringify(params));
     }
   });
 }
