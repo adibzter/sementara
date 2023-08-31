@@ -47,6 +47,7 @@ wss.setMaxListeners(0);
 
 const clients = {};
 wss.on('connection', (ws, req) => {
+  console.log('Headers', req.headers);
   console.log(`Remote address: ${req.socket.remoteAddress}`);
 
   // Recieve message from client
