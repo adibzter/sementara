@@ -9,13 +9,17 @@ const ip = require('ip');
  *
  *     getPublicIpAddress(req)
  */
-const getPublicIpAddress = async (req) => {
+const getPublicIpAddress = (req) => {
   const remoteAddress =
     req.headers['x-forwarded-for'] || req.socket.remoteAddress;
   let publicIpAddress = remoteAddress;
 
-  if (!publicIpAddress || ip.isPrivate(publicIpAddress)) {
+  if (!publicIpAddress) {
     return;
+  }
+
+  if (ip.isPrivate(publicIpAddress)) {
+    return publicIpAddress;
   }
 
   if (ip.isV6Format(publicIpAddress)) {
