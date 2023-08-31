@@ -5,6 +5,8 @@ const compression = require('compression');
 const WebSocket = require('ws');
 // const { ExpressPeerServer } = require('peer');
 
+const { getPublicIpAddress } = require('./utils/network');
+
 const app = express();
 app.use(compression({ memLevel: 9 }));
 
@@ -49,7 +51,8 @@ const clients = {};
 wss.on('connection', (ws, req) => {
   // Only works if no proxy in front of our server
   // console.log(`Remote address: ${req.socket.remoteAddress}`);
-  console.log(`Remote address: ${req.headers['x-forwarded-for']}`);
+  const remoteAddress = getPublicIpAddress(req);
+  console.log(`Remote address: ${remoteAddress}`);
 
   // Recieve message from client
   ws.on('message', (message) => {
