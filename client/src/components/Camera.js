@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import QrScanner from 'qr-scanner';
 
 import { WEB_SOCKET_SERVER } from '../utils/config';
+import WebSocketService from '../services/WebSocketService';
 
 import './styles/Camera.css';
 
@@ -103,18 +104,15 @@ const Camera = ({ folderId, sdp, peer, setCallerConnection }) => {
         return false;
       }
 
-      const ws = new WebSocket(WEB_SOCKET_SERVER);
-      ws.onopen = (e) => {
-        ws.send(
-          JSON.stringify({
-            type: 'message',
-            action,
-            userId: uuid,
-            folderId,
-          })
-        );
-        ws.close();
-      };
+      const ws = WebSocketService.getWebSocket();
+      ws.send(
+        JSON.stringify({
+          type: 'message',
+          action,
+          userId: uuid,
+          folderId,
+        })
+      );
     }
     return true;
   }

@@ -4,11 +4,15 @@ const { getNetworkAddress } = require('../utils/network');
 
 // GET /api/socket/connect
 router.get('/connect', (req, res) => {
-  const id = uuid();
+  const userAgent = req.headers['user-agent'];
+  const userId = uuid();
+  const networkAddress = getNetworkAddress(req);
 
   const params = {
     action: 'connect',
-    id,
+    userAgent,
+    userId,
+    networkAddress,
   };
 
   res.json(params);

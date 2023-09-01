@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import userAgentParser from 'ua-parser-js';
+
 import Qr from '../components/Qr';
 import Camera from '../components/Camera';
 
@@ -10,6 +12,8 @@ import Button from '../components/Button';
 import Loader from '../components/Loader';
 
 import { API_SERVER, QR_URL_ORIGIN } from '../utils/config';
+import { useUserStore } from '../stores/userStore';
+import WebSocketService from '../services/WebSocketService';
 
 import './styles/Folder.css';
 
@@ -24,6 +28,12 @@ const Folder = () => {
   const [qr, setQr] = useState(null);
   const [camera, setCamera] = useState(null);
 
+  const [userAgent, userId, users] = useUserStore((state) => [
+    state.userAgent,
+    state.userId,
+    state.users,
+  ]);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,7 +43,7 @@ const Folder = () => {
   }, []);
 
   useEffect(() => {
-    if (!folderId) {
+    if (!folderId || !userId) {
       return;
     }
 
@@ -64,7 +74,7 @@ const Folder = () => {
         console.error(err.message);
       }
     })();
-  }, [folderId]);
+  }, [folderId, userId]);
 
   function handleMethod() {
     if (method === 'qr') {
@@ -95,7 +105,7 @@ const Folder = () => {
     const xhr = new XMLHttpRequest();
     xhr.responseType = 'blob';
 
-    xhr.upload.onprogress = (e) => {
+    xhr.onprogress = (e) => {
       if (e.lengthComputable) {
         setProgress((e.loaded / e.total) * 100);
       }
@@ -123,6 +133,18 @@ const Folder = () => {
     document.body.appendChild(a);
     a.click();
     a.remove();
+  }
+
+  function handleSendWsMessage(userId) {
+    const ws = WebSocketService.getWebSocket();
+    ws.send(
+      JSON.stringify({
+        type: 'message',
+        action: 'receive',
+        userId,
+        folderId,
+      })
+    );
   }
 
   return (
@@ -162,6 +184,22 @@ const Folder = () => {
               </tbody>
             </table>
             <Button onClick={handleDownload}>Download</Button>
+            <ol>
+              {users.map((user, i) => {
+                const { os, browser } = userAgentParser(user.userAgent);
+                let displayName = `${os.name} ${browser.name} 🐧`;
+                displayName =
+                  user.userId === userId ? displayName + '(You)' : displayName;
+
+                return (
+                  <li key={i}>
+                    <button onClick={() => handleSendWsMessage(user.userId)}>
+                      {displayName}
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
           </>
         )}
       </Center>

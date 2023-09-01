@@ -1,7 +1,7 @@
 // Default to dev environment
 export let QR_URL_ORIGIN = window.location.origin.replace(
   'localhost',
-  '192.168.1.6'
+  '192.168.1.12'
 );
 export let PORT = '5000';
 let wsProtocol = 'ws';

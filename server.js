@@ -27,7 +27,6 @@ app.use(express.urlencoded({ extended: false }));
 // API endpoint
 app.use('/api/socket', require('./routes/socketRoute'));
 app.use('/api/send', require('./routes/sendRoute'));
-app.use('/api/receive', require('./routes/receiveRoute'));
 app.use('/api/folder', require('./routes/folderRoute'));
 
 // // PeerJS path
@@ -56,22 +55,19 @@ wss.on('connection', (ws, req) => {
   ws.on('message', (message) => {
     const data = JSON.parse(message.toString());
 
-    if (data.type === 'connection') {
-      ws.userId = data.userId;
-      clients[ws.userId] = ws;
-    }
-
-    // Join room
-    else if (data.type === 'join') {
+    // Should happen once in the app startup
+    if (data.type === 'connect') {
+      ws.userAgent = data.userAgent;
       ws.userId = data.userId;
       ws.networkAddress = data.networkAddress;
       clients[ws.userId] = ws;
 
       sendUsersInSameNetwork(wss, ws);
+    }
 
-      // if (data.action === 'join') {
-      //   sendToRoom(wss, ws, data);
-      // }
+    // Get list of users in same network
+    else if (data.type === 'network') {
+      sendUsersInSameNetwork(wss, ws);
     }
 
     // Client in room
@@ -134,6 +130,7 @@ function sendUsersInSameNetwork(wss, ws) {
   for (const [key, value] of Object.entries(clients)) {
     if (value.networkAddress === ws.networkAddress) {
       const userDetail = {
+        userAgent: value.userAgent,
         userId: value.userId,
       };
       params.users.push(userDetail);
