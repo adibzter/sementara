@@ -17,7 +17,7 @@ import { useUserStore } from '../stores/userStore';
 const Receive = () => {
   const [method, setMethod] = useState('qr');
   const [methodButton, setMethodButton] = useState({
-    text: 'Show Camera',
+    text: 'Camera',
     icon: <CameraAltIcon />,
   });
   const [qr, setQr] = useState(null);
@@ -45,10 +45,10 @@ const Receive = () => {
   function handleMethod() {
     if (method === 'qr') {
       setMethod('camera');
-      setMethodButton({ text: 'Show QR', icon: <QrCode2Icon /> });
+      setMethodButton({ text: 'QR', icon: <QrCode2Icon /> });
     } else if (method === 'camera') {
       setMethod('qr');
-      setMethodButton({ text: 'Show Camera', icon: <CameraAltIcon /> });
+      setMethodButton({ text: 'Camera', icon: <CameraAltIcon /> });
     }
   }
 

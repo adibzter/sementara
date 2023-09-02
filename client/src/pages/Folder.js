@@ -32,7 +32,7 @@ const Folder = () => {
   const [progress, setProgress] = useState(0);
   const [method, setMethod] = useState('qr');
   const [methodButton, setMethodButton] = useState({
-    text: 'Show Camera',
+    text: 'Camera',
     icon: <CameraAltIcon />,
   });
   const [qr, setQr] = useState(null);
@@ -89,10 +89,10 @@ const Folder = () => {
   function handleMethod() {
     if (method === 'qr') {
       setMethod('camera');
-      setMethodButton({ text: 'Show Qr', icon: <QrCode2Icon /> });
+      setMethodButton({ text: 'QR', icon: <QrCode2Icon /> });
     } else if (method === 'camera') {
       setMethod('qr');
-      setMethodButton({ text: 'Show Camera', icon: <CameraAltIcon /> });
+      setMethodButton({ text: 'Camera', icon: <CameraAltIcon /> });
     }
   }
 
