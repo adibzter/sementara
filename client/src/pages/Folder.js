@@ -10,6 +10,9 @@ import Navbar from '../components/Navbar';
 import Center from '../components/Center';
 import Button from '../components/Button';
 import Loader from '../components/Loader';
+import UserDisplay from '../components/UserDisplay';
+
+import { Box } from '@mui/material';
 
 import { API_SERVER, QR_URL_ORIGIN } from '../utils/config';
 import { useUserStore } from '../stores/userStore';
@@ -184,22 +187,27 @@ const Folder = () => {
               </tbody>
             </table>
             <Button onClick={handleDownload}>Download</Button>
-            <ol>
+
+            <h3>Devices in your network:</h3>
+            <Box display='flex' flexWrap='wrap' justifyContent='space-around'>
               {users.map((user, i) => {
-                const { os, browser } = userAgentParser(user.userAgent);
-                let displayName = `${os.name} ${browser.name} 🐧`;
+                const { os, browser, device } = userAgentParser(user.userAgent);
+                let displayName = `${os.name} ${browser.name}`;
                 displayName =
-                  user.userId === userId ? displayName + '(You)' : displayName;
+                  user.userId === userId ? displayName + ' (You)' : displayName;
 
                 return (
-                  <li key={i}>
-                    <button onClick={() => handleSendWsMessage(user.userId)}>
-                      {displayName}
-                    </button>
-                  </li>
+                  <Box p={2}>
+                    <UserDisplay
+                      key={i}
+                      onClick={() => handleSendWsMessage(user.userId)}
+                      displayName={displayName}
+                      deviceType={device.type}
+                    />
+                  </Box>
                 );
               })}
-            </ol>
+            </Box>
           </>
         )}
       </Center>
