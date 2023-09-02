@@ -1,13 +1,18 @@
 const router = require('express').Router();
 const { v4: uuid } = require('uuid');
+const { getNetworkAddress } = require('../utils/network');
 
 // GET /api/socket/connect
 router.get('/connect', (req, res) => {
-  const id = uuid();
+  const userAgent = req.headers['user-agent'];
+  const userId = uuid();
+  const networkAddress = getNetworkAddress(req);
 
   const params = {
     action: 'connect',
-    id,
+    userAgent,
+    userId,
+    networkAddress,
   };
 
   res.json(params);
@@ -15,11 +20,13 @@ router.get('/connect', (req, res) => {
 
 // GET /api/socket/join
 router.get('/join', (req, res) => {
-  const roomId = uuid();
+  const userId = uuid();
+  const networkAddress = getNetworkAddress(req);
 
   const params = {
     action: 'join',
-    roomId,
+    userId,
+    networkAddress,
   };
 
   res.json(params);

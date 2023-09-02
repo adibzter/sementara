@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { zip } from 'fflate';
 
+import FileOpenIcon from '@mui/icons-material/FileOpen';
+import FolderOpenIcon from '@mui/icons-material/FolderOpen';
+
 import Navbar from '../components/Navbar';
 import Center from '../components/Center';
 import Button from '../components/Button';
@@ -235,14 +238,20 @@ const Send = () => {
             </Loader>
           ) : (
             <>
-              <h2>Send Files</h2>
+              <h2>Send</h2>
               <dialog ref={dialogRef}>{message}</dialog>
               <div>
-                <Button onClick={() => handleUpload('file')}>
-                  Upload Files
+                <Button
+                  endIcon={<FileOpenIcon />}
+                  onClick={() => handleUpload('file')}
+                >
+                  Files
                 </Button>
-                <Button onClick={() => handleUpload('folder')}>
-                  Upload Folder
+                <Button
+                  endIcon={<FolderOpenIcon />}
+                  onClick={() => handleUpload('folder')}
+                >
+                  Folder
                 </Button>
               </div>
 

@@ -1,0 +1,13 @@
+.user-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: 0.2s;
+
+  &:hover {
+    cursor: pointer;
+    transform: scale(1.2);
+  }
+}

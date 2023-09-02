@@ -5,6 +5,8 @@ const compression = require('compression');
 const WebSocket = require('ws');
 // const { ExpressPeerServer } = require('peer');
 
+const { getFullIpAddress, getNetworkAddress } = require('./utils/network');
+
 const app = express();
 app.use(compression({ memLevel: 9 }));
 
@@ -23,9 +25,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // API endpoint
-// app.use('/api/socket', require('./routes/socketRoute'));
+app.use('/api/socket', require('./routes/socketRoute'));
 app.use('/api/send', require('./routes/sendRoute'));
-app.use('/api/receive', require('./routes/receiveRoute'));
 app.use('/api/folder', require('./routes/folderRoute'));
 
 // // PeerJS path
@@ -47,24 +48,26 @@ wss.setMaxListeners(0);
 
 const clients = {};
 wss.on('connection', (ws, req) => {
-  console.log(`Remote address: ${req.socket.remoteAddress}`);
+  console.log(`Full IP address: ${getFullIpAddress(req)}`);
+  console.log(`Network address: ${getNetworkAddress(req)}`);
 
   // Recieve message from client
   ws.on('message', (message) => {
     const data = JSON.parse(message.toString());
 
-    if (data.type === 'connection') {
+    // Should happen once in the app startup
+    if (data.type === 'connect') {
+      ws.userAgent = data.userAgent;
       ws.userId = data.userId;
+      ws.networkAddress = data.networkAddress;
       clients[ws.userId] = ws;
+
+      sendUsersInSameNetwork(wss, ws);
     }
 
-    // Join room
-    else if (data.type === 'join') {
-      ws.roomId = data.roomId;
-
-      if (data.action === 'join') {
-        sendToRoom(wss, ws, data);
-      }
+    // Get list of users in same network
+    else if (data.type === 'network') {
+      sendUsersInSameNetwork(wss, ws);
     }
 
     // Client in room
@@ -88,6 +91,11 @@ wss.on('connection', (ws, req) => {
     }
   });
 
+  ws.on('close', () => {
+    delete clients[ws.userId];
+    sendUsersInSameNetwork(wss, ws);
+  });
+
   ws.on('error', (err) => {
     console.error(`ERROR: ${err}`);
   });
@@ -108,6 +116,33 @@ function sendToRoom(wss, ws, data) {
       client.roomId === data.roomId
     ) {
       client.send(JSON.stringify(data));
+    }
+  });
+}
+
+function sendUsersInSameNetwork(wss, ws) {
+  const params = {
+    action: 'network',
+    networkAddress: ws.networkAddress,
+    users: [],
+  };
+
+  for (const [key, value] of Object.entries(clients)) {
+    if (value.networkAddress === ws.networkAddress) {
+      const userDetail = {
+        userAgent: value.userAgent,
+        userId: value.userId,
+      };
+      params.users.push(userDetail);
+    }
+  }
+
+  wss.clients.forEach((client) => {
+    if (
+      client.readyState === WebSocket.OPEN &&
+      client.networkAddress === ws.networkAddress
+    ) {
+      client.send(JSON.stringify(params));
     }
   });
 }

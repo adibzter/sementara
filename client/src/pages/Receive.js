@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import QrCode2Icon from '@mui/icons-material/QrCode2';
 
 import Qr from '../components/Qr';
 import Camera from '../components/Camera';
@@ -9,62 +11,45 @@ import Center from '../components/Center';
 import Button from '../components/Button';
 import Loader from '../components/Loader';
 
-import { API_SERVER, QR_URL_ORIGIN, WEB_SOCKET_SERVER } from '../utils/config';
+import { QR_URL_ORIGIN } from '../utils/config';
+import { useUserStore } from '../stores/userStore';
 
 const Receive = () => {
   const [method, setMethod] = useState('qr');
-  const [methodButtonText, setMethodButtonText] = useState('Show Camera');
+  const [methodButton, setMethodButton] = useState({
+    text: 'Show Camera',
+    icon: <CameraAltIcon />,
+  });
   const [qr, setQr] = useState(null);
   const [camera, setCamera] = useState(null);
 
-  const navigate = useNavigate();
+  const [userId] = useUserStore((state) => [state.userId, state.setUsers]);
 
   window.cameraStream = new MediaStream();
-  window.userId = null;
 
   useEffect(() => {
     (async () => {
+      if (!userId) {
+        return;
+      }
+
       await getQr();
-      connectWebSocket();
     })();
-  }, []);
+  }, [userId]);
 
   async function getQr() {
-    let res = await fetch(`${API_SERVER}/api/receive`);
-    res = await res.json();
-
-    setQr(<Qr qrData={`${QR_URL_ORIGIN}/receive/${res.userId}`} />);
+    setQr(<Qr qrData={`${QR_URL_ORIGIN}/receive/${userId}`} />);
     setCamera(<Camera />);
-
-    window.userId = res.userId;
   }
 
   function handleMethod() {
     if (method === 'qr') {
       setMethod('camera');
-      setMethodButtonText('Show QR');
+      setMethodButton({ text: 'Show QR', icon: <QrCode2Icon /> });
     } else if (method === 'camera') {
       setMethod('qr');
-      setMethodButtonText('Show Camera');
+      setMethodButton({ text: 'Show Camera', icon: <CameraAltIcon /> });
     }
-  }
-
-  function connectWebSocket() {
-    const ws = new WebSocket(WEB_SOCKET_SERVER);
-    ws.onopen = (e) => {
-      ws.send(JSON.stringify({ type: 'connection', userId: window.userId }));
-
-      ws.onmessage = (e) => {
-        const data = JSON.parse(e.data);
-
-        navigate(`/folder/${data.folderId}`);
-        window.cameraStream.getTracks().forEach((track) => {
-          track.stop();
-        });
-
-        ws.close();
-      };
-    };
   }
 
   return (
@@ -78,7 +63,9 @@ const Receive = () => {
             <h2>Receive Files</h2>
             <div id='method-div'>{method === 'qr' ? qr : camera}</div>
             <div>
-              <Button onClick={handleMethod}>{methodButtonText}</Button>
+              <Button onClick={handleMethod} endIcon={methodButton.icon}>
+                {methodButton.text}
+              </Button>
             </div>
           </>
         )}

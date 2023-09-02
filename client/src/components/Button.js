@@ -1,10 +1,16 @@
-import './styles/Button.css';
+import { default as MuiButton } from '@mui/material/Button';
 
-const Button = ({ children, onClick, margin = '5px' }) => {
+const Button = ({ children, onClick, margin = '15px', endIcon }) => {
   return (
-    <button className='button' onClick={onClick} style={{ margin }}>
+    <MuiButton
+      sx={{ margin }}
+      variant='contained'
+      size='large'
+      endIcon={endIcon}
+      onClick={onClick}
+    >
       {children}
-    </button>
+    </MuiButton>
   );
 };
 

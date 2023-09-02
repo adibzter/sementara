@@ -1,6 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import userAgentParser from 'ua-parser-js';
+
+import { Box } from '@mui/material';
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import QrCode2Icon from '@mui/icons-material/QrCode2';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import DownloadIcon from '@mui/icons-material/Download';
+
 import Qr from '../components/Qr';
 import Camera from '../components/Camera';
 
@@ -8,8 +16,11 @@ import Navbar from '../components/Navbar';
 import Center from '../components/Center';
 import Button from '../components/Button';
 import Loader from '../components/Loader';
+import UserDisplay from '../components/UserDisplay';
 
 import { API_SERVER, QR_URL_ORIGIN } from '../utils/config';
+import { useUserStore } from '../stores/userStore';
+import WebSocketService from '../services/WebSocketService';
 
 import './styles/Folder.css';
 
@@ -20,9 +31,18 @@ const Folder = () => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [method, setMethod] = useState('qr');
-  const [methodButtonText, setMethodButtonText] = useState('Show Camera');
+  const [methodButton, setMethodButton] = useState({
+    text: 'Show Camera',
+    icon: <CameraAltIcon />,
+  });
   const [qr, setQr] = useState(null);
   const [camera, setCamera] = useState(null);
+
+  const [userAgent, userId, users] = useUserStore((state) => [
+    state.userAgent,
+    state.userId,
+    state.users,
+  ]);
 
   const navigate = useNavigate();
 
@@ -33,7 +53,7 @@ const Folder = () => {
   }, []);
 
   useEffect(() => {
-    if (!folderId) {
+    if (!folderId || !userId) {
       return;
     }
 
@@ -64,15 +84,15 @@ const Folder = () => {
         console.error(err.message);
       }
     })();
-  }, [folderId]);
+  }, [folderId, userId]);
 
   function handleMethod() {
     if (method === 'qr') {
       setMethod('camera');
-      setMethodButtonText('Show QR');
+      setMethodButton({ text: 'Show Qr', icon: <QrCode2Icon /> });
     } else if (method === 'camera') {
       setMethod('qr');
-      setMethodButtonText('Show Camera');
+      setMethodButton({ text: 'Show Camera', icon: <CameraAltIcon /> });
     }
   }
 
@@ -95,7 +115,7 @@ const Folder = () => {
     const xhr = new XMLHttpRequest();
     xhr.responseType = 'blob';
 
-    xhr.upload.onprogress = (e) => {
+    xhr.onprogress = (e) => {
       if (e.lengthComputable) {
         setProgress((e.loaded / e.total) * 100);
       }
@@ -125,6 +145,18 @@ const Folder = () => {
     a.remove();
   }
 
+  function handleSendWsMessage(userId) {
+    const ws = WebSocketService.getWebSocket();
+    ws.send(
+      JSON.stringify({
+        type: 'message',
+        action: 'receive',
+        userId,
+        folderId,
+      })
+    );
+  }
+
   return (
     <>
       <Navbar />
@@ -143,8 +175,12 @@ const Folder = () => {
           <>
             <div id='method-div'>{method === 'qr' ? qr : camera}</div>
             <div>
-              <Button onClick={handleMethod}>{methodButtonText}</Button>
-              <Button onClick={handleCopyUrl}>Copy URL</Button>
+              <Button onClick={handleMethod} endIcon={methodButton.icon}>
+                {methodButton.text}
+              </Button>
+              <Button onClick={handleCopyUrl} endIcon={<ContentCopyIcon />}>
+                Copy URL
+              </Button>
             </div>
 
             <br />
@@ -161,7 +197,29 @@ const Folder = () => {
                 })}
               </tbody>
             </table>
-            <Button onClick={handleDownload}>Download</Button>
+            <Button onClick={handleDownload} endIcon={<DownloadIcon />}>
+              Download
+            </Button>
+
+            <h3>Devices in your network:</h3>
+            <Box display='flex' flexWrap='wrap' justifyContent='space-around'>
+              {users.map((user, i) => {
+                const { os, browser, device } = userAgentParser(user.userAgent);
+                let displayName = `${os.name} ${browser.name}`;
+                displayName =
+                  user.userId === userId ? displayName + ' (You)' : displayName;
+
+                return (
+                  <Box key={i} p={2}>
+                    <UserDisplay
+                      onClick={() => handleSendWsMessage(user.userId)}
+                      displayName={displayName}
+                      deviceType={device.type}
+                    />
+                  </Box>
+                );
+              })}
+            </Box>
           </>
         )}
       </Center>
