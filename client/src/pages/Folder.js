@@ -3,6 +3,12 @@ import { useNavigate } from 'react-router-dom';
 
 import userAgentParser from 'ua-parser-js';
 
+import { Box } from '@mui/material';
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import QrCode2Icon from '@mui/icons-material/QrCode2';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import DownloadIcon from '@mui/icons-material/Download';
+
 import Qr from '../components/Qr';
 import Camera from '../components/Camera';
 
@@ -11,8 +17,6 @@ import Center from '../components/Center';
 import Button from '../components/Button';
 import Loader from '../components/Loader';
 import UserDisplay from '../components/UserDisplay';
-
-import { Box } from '@mui/material';
 
 import { API_SERVER, QR_URL_ORIGIN } from '../utils/config';
 import { useUserStore } from '../stores/userStore';
@@ -27,7 +31,10 @@ const Folder = () => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [method, setMethod] = useState('qr');
-  const [methodButtonText, setMethodButtonText] = useState('Show Camera');
+  const [methodButton, setMethodButton] = useState({
+    text: 'Show Camera',
+    icon: <CameraAltIcon />,
+  });
   const [qr, setQr] = useState(null);
   const [camera, setCamera] = useState(null);
 
@@ -82,10 +89,10 @@ const Folder = () => {
   function handleMethod() {
     if (method === 'qr') {
       setMethod('camera');
-      setMethodButtonText('Show QR');
+      setMethodButton({ text: 'Show Qr', icon: <QrCode2Icon /> });
     } else if (method === 'camera') {
       setMethod('qr');
-      setMethodButtonText('Show Camera');
+      setMethodButton({ text: 'Show Camera', icon: <CameraAltIcon /> });
     }
   }
 
@@ -168,8 +175,12 @@ const Folder = () => {
           <>
             <div id='method-div'>{method === 'qr' ? qr : camera}</div>
             <div>
-              <Button onClick={handleMethod}>{methodButtonText}</Button>
-              <Button onClick={handleCopyUrl}>Copy URL</Button>
+              <Button onClick={handleMethod} endIcon={methodButton.icon}>
+                {methodButton.text}
+              </Button>
+              <Button onClick={handleCopyUrl} endIcon={<ContentCopyIcon />}>
+                Copy URL
+              </Button>
             </div>
 
             <br />
@@ -186,7 +197,9 @@ const Folder = () => {
                 })}
               </tbody>
             </table>
-            <Button onClick={handleDownload}>Download</Button>
+            <Button onClick={handleDownload} endIcon={<DownloadIcon />}>
+              Download
+            </Button>
 
             <h3>Devices in your network:</h3>
             <Box display='flex' flexWrap='wrap' justifyContent='space-around'>
@@ -197,9 +210,8 @@ const Folder = () => {
                   user.userId === userId ? displayName + ' (You)' : displayName;
 
                 return (
-                  <Box p={2}>
+                  <Box key={i} p={2}>
                     <UserDisplay
-                      key={i}
                       onClick={() => handleSendWsMessage(user.userId)}
                       displayName={displayName}
                       deviceType={device.type}

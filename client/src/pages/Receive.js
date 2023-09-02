@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import QrCode2Icon from '@mui/icons-material/QrCode2';
 
 import Qr from '../components/Qr';
 import Camera from '../components/Camera';
@@ -14,16 +16,14 @@ import { useUserStore } from '../stores/userStore';
 
 const Receive = () => {
   const [method, setMethod] = useState('qr');
-  const [methodButtonText, setMethodButtonText] = useState('Show Camera');
+  const [methodButton, setMethodButton] = useState({
+    text: 'Show Camera',
+    icon: <CameraAltIcon />,
+  });
   const [qr, setQr] = useState(null);
   const [camera, setCamera] = useState(null);
 
-  const [userId, setUsers] = useUserStore((state) => [
-    state.userId,
-    state.setUsers,
-  ]);
-
-  const navigate = useNavigate();
+  const [userId] = useUserStore((state) => [state.userId, state.setUsers]);
 
   window.cameraStream = new MediaStream();
 
@@ -45,10 +45,10 @@ const Receive = () => {
   function handleMethod() {
     if (method === 'qr') {
       setMethod('camera');
-      setMethodButtonText('Show QR');
+      setMethodButton({ text: 'Show QR', icon: <QrCode2Icon /> });
     } else if (method === 'camera') {
       setMethod('qr');
-      setMethodButtonText('Show Camera');
+      setMethodButton({ text: 'Show Camera', icon: <CameraAltIcon /> });
     }
   }
 
@@ -63,7 +63,9 @@ const Receive = () => {
             <h2>Receive Files</h2>
             <div id='method-div'>{method === 'qr' ? qr : camera}</div>
             <div>
-              <Button onClick={handleMethod}>{methodButtonText}</Button>
+              <Button onClick={handleMethod} endIcon={methodButton.icon}>
+                {methodButton.text}
+              </Button>
             </div>
           </>
         )}
