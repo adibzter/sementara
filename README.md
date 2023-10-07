@@ -30,15 +30,15 @@ $ git clone https://github.com/ADIBzTER/sementara.git
 
 ```
 $ npm install
-$ npm install-client
+$ npm run install-client
 $ npm run dev
 ```
 ### Production Mode
 
 ```
 $ npm install
-$ npm install-client
-$ npm build-client
+$ npm run install-client
+$ npm run build-client
 $ npm start
 ```
 
