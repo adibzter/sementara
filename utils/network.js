@@ -18,7 +18,13 @@ const getNetworkAddress = (req) => {
     return;
   }
 
-  const networkAddress = getFullIpAddress(req).split(':').slice(0, 4).join(':');
+  let networkAddress = getFullIpAddress(req);
+  const addr = ipaddr.parse(networkAddress);
+
+  // Handle normal IPv6
+  if (addr.kind() === 'ipv6') {
+    networkAddress = networkAddress.split(':').slice(0, 4).join(':');
+  }
 
   return networkAddress;
 };
@@ -41,7 +47,7 @@ function getFullIpAddress(req) {
     return;
   }
 
-  let fullIpAddress = remoteAddress;
+  let fullIpAddress = remoteAddress.split(',')[0];
 
   if (ipaddr.isValid(fullIpAddress)) {
     const addr = ipaddr.parse(fullIpAddress);
